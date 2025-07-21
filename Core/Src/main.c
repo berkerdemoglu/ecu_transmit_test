@@ -148,90 +148,17 @@ int main(void)
   int time_sum = 0;
   while (1)
   {
-	 // try recover before turning on for 5 secs
-//	  while (time_sum < 2000) {
-//		 txData.sensor_int = 0x0202020202020202;
-//		 send_CAN_message(0x201, &txData);
-//
-//		 // CAN messages at 50 ms interval
-//		 time_sum += 50;
-//		 HAL_Delay(50);
-//	 }
-//  	  time_sum = 0; // reset timer
-
 	 // send a logic one for 5 seconds to turn on the Inverter
-	  time_sum = 0;
-	 while (time_sum < 5000) {
-  		 txData.sensor_int = 0x0101010101010101;
-		 send_CAN_message(0x201, &txData);
+	 time_sum = 0;
+	 while (time_sum < 5000) {  // we dont even need a timer here
+  		 txData.first.sensor_int = 0x01000000;
+  		 txData.second.sensor_int = 0x00001010;
+		 send_CAN_message(0x102, &txData);
 
 		 // CAN messages at 50 ms interval
 		 time_sum += 50;
 		 HAL_Delay(50);
 	 }
-	 time_sum = 0;
-  	 // after the 5 sec transmission
-  	 // send the usual code (the one who turns the machine from 0 to 100 RPM)
-     txData.sensor_int = 0;  // reset txData
-	 time_sum = 0;  // reset timer
-	 int ctr = 0;
-	 while (ctr < 5) {
-		 txData.second.sensor_float = 10 * (ctr++);
-
-		 // if statement for thomas
-		 if (txData.second.sensor_float > 100) {  // do not send dangerous values!
-			txData.second.sensor_float = 1;
-		 }
-		 time_sum = 0;
-		 while (time_sum < 750) {  // send the same message for 3s
-			  send_CAN_message(0x301, &txData);  // send torque reference
-			  send_turn_on_message();
-			  time_sum += 50;
-			  HAL_Delay(50);
-		 }
-	 }
-
-	 txData.sensor_int = 0;
-	 time_sum = 0;
-	 ctr = 5;
-	 while (ctr >= 0) {
-		 txData.second.sensor_float = 10 * (ctr--);
-
-		 // if statement for thomas
-		 if (txData.second.sensor_float > 100 || txData.second.sensor_float < 0) {  // do not send dangerous values!
-			txData.second.sensor_float = 1;
-		 }
-		 time_sum = 0;
-		 while (time_sum < 750) {  // send the same message for 3s
-			  send_CAN_message(0x301, &txData);  // send torque reference
-			  send_turn_on_message();
-			  time_sum += 50;
-			  HAL_Delay(50);
-		 }
-	 }
-
-	 for (;;) {
-		 txData.second.sensor_float = 20.0;
-		 if (txData.second.sensor_float > 100 || txData.second.sensor_float < 0) {  // do not send dangerous values!
-			 txData.second.sensor_float = 1;
-		 }
-		 send_CAN_message(0x301, &txData);  // send torque reference
-		 HAL_Delay(50);
-	 }
-
-     time_sum = 0;
-     // "send a logic zero to turn off the Inverter"
-//     while (time_sum < 2000) {
-//    	  		 txData.sensor_int = 0x0000000000000000;
-//    	  		 send_CAN_message(0x201, &txData);
-//
-//    	  		 // CAN messages at 50 ms interval
-//    	  		 time_sum += 50;
-//    	  		 HAL_Delay(50);
-//    	 }
-//     time_sum = 0;
-
-//     for(;;);  // stop
 
     /* USER CODE END WHILE */
 
