@@ -55,6 +55,31 @@ typedef union {
     uint8_t bytes[8];
 } can_message_eight;
 
+// Throttle
+#define THROTTLE_BUFFER_SIZE 32
+struct Throttle {
+	float adc_sum;
+	float buffer[THROTTLE_BUFFER_SIZE];
+	uint8_t buffer_index;
+
+	can_message_four throttle_value;
+	float hysteresis;
+	float hysteresis_min;
+
+	uint8_t throttle_activated;  // flag
+};
+
+// Steering angle
+#define STEERING_BUFFER_SIZE 32
+struct SteeringAngle {
+	can_message_four steering_value;
+	float steering_output;
+
+	float adc_sum;
+	float buffer[STEERING_BUFFER_SIZE];
+	uint8_t buffer_index;
+};
+
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -72,20 +97,27 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 void send_CAN_message(uint16_t address, can_message_eight* msg);
+void send_turn_on_message(void);
 
 void convert_float_display(can_message_four* msg_in, can_message_four* msg_out, int decimal_points);
+
+// Throttle functions
+void throttle_init(struct Throttle* thr);
+void convert_adc_throttle(struct Throttle* th, uint16_t raw_adc_value);
+
+// Steering angle functions
+void steering_angle_init(struct SteeringAngle* sa);
+void steering_angle_avg(struct SteeringAngle* sa, float value);
 
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define T_SWDIO_Pin GPIO_PIN_13
-#define T_SWDIO_GPIO_Port GPIOA
-#define T_SWCLK_Pin GPIO_PIN_14
-#define T_SWCLK_GPIO_Port GPIOA
-#define T_SWO_Pin GPIO_PIN_3
-#define T_SWO_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
+// Aswin throttle values (?)
+#define SPEED_REFERENCE 1500.0f  // TODO: remove
+#define MAX_RPM 1500.0f
+
 // The macros below are to be used in the convert function
 #define DECIMAL_POINT_0 1
 #define DECIMAL_POINT_1 10
