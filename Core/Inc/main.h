@@ -96,10 +96,12 @@ struct SteeringAngle {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-void send_CAN_message(uint16_t address, can_message_eight* msg);
-void send_turn_on_message(void);
-
 void convert_float_display(can_message_four* msg_in, can_message_four* msg_out, int decimal_points);
+
+void send_CAN_message(uint16_t address, can_message_eight* msg);
+void send_turn_on_inverter(void);
+void send_velocity_ref_inverter(struct Throttle* th);
+void send_throttle_steering_display(struct Throttle* th, struct SteeringAngle* sa);
 
 // Throttle functions
 void throttle_init(struct Throttle* thr);

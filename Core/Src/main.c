@@ -54,12 +54,12 @@ struct Throttle throttle_sensor;
 struct SteeringAngle steering_sensor;
 
 // CAN
-FDCAN_TxHeaderTypeDef txHeader;
-can_message_eight txData;
-can_message_eight turnOnData = { .sensor_int = 0x0101010101010101 };
+FDCAN_TxHeaderTypeDef tx_header;
+can_message_eight tx_data;
+can_message_eight inverter_on_msg = { .sensor_int = 0x0101010101010101 };
 
-FDCAN_RxHeaderTypeDef rxHeader;
-can_message_eight rxData;
+FDCAN_RxHeaderTypeDef rx_header;
+can_message_eight rx_data;
 
 // ADC
 __IO uint8_t adc_complete_flag = 0;
@@ -78,34 +78,55 @@ static void MX_FDCAN1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void convert_float_display(can_message_four* msg_in, can_message_four* msg_out, int decimal_points) {
+    // Used for MoTeC
+	msg_out->sensor_int = (uint32_t) (msg_in->sensor_float * decimal_points);
+}
+
+
 void send_CAN_message(uint16_t address, can_message_eight* msg) {
     // Update ID of the transmit header
-    txHeader.Identifier = address;
+    tx_header.Identifier = address;
 
     HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);  // Toggle LED
 
-    if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &txHeader, msg->bytes) != HAL_OK) {
+    if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &tx_header, msg->bytes) != HAL_OK) {
         Error_Handler();
     }
 }
 
-void send_turn_on_message(void) {
+void send_turn_on_inverter(void) {
 	// Sends a ON message to the inverter
-	send_CAN_message(0x201, &turnOnData);
+	send_CAN_message(0x201, &inverter_on_msg);
 }
 
+void send_velocity_ref_inverter(struct Throttle* th) {
+	// Check for safe throttle (and RPM) values
+	if (throttle_sensor.throttle_value.sensor_float <= 100.0f) {
+		tx_data.first.sensor_int = 0;
+		tx_data.second.sensor_float = throttle_sensor.throttle_value.sensor_float;
+		send_CAN_message(0x301, &tx_data);
 
-void convert_float_display(can_message_four* msg_in, can_message_four* msg_out, int decimal_points) {
-    // Used for MoTeC
-	msg_out->sensor_int = (uint32_t) (msg_in->sensor_float * decimal_points);
+		send_turn_on_inverter();
+	}
+}
+
+void send_throttle_steering_display(struct Throttle* th, struct SteeringAngle* sa) {
+	 // Send throttle in the first 4 bytes
+	 convert_float_display(&th->throttle_value, &tx_data.first, DECIMAL_POINT_2);
+
+	 // Send steering angle in the last 4 bytes
+	 convert_float_display(&sa->steering_value, &tx_data.second, DECIMAL_POINT_2);
+
+	 send_CAN_message(0x102, &tx_data);
 }
 
 // Throttle functions
 void throttle_init(struct Throttle* thr) {
 	thr->adc_sum = 0;
 	thr->buffer_index = 0;
-	thr->hysteresis = 2.0;
-	thr->hysteresis_min = 5.0;
+	thr->hysteresis = 2.0f;
+	thr->hysteresis_min = 5.0f;
 	thr->throttle_activated = 0;
 	// Init buffer with zeroes
 	// maybe this can also be done at initialization
@@ -113,7 +134,7 @@ void throttle_init(struct Throttle* thr) {
 		thr->buffer[i] = 0;
 	}
 
-	thr->throttle_value.sensor_float = 10.0;
+	thr->throttle_value.sensor_float = 0.0f;  // init with 0 for safety
 }
 
 void convert_adc_throttle(struct Throttle* th, uint16_t adc_value) {
@@ -167,7 +188,7 @@ void steering_angle_init(struct SteeringAngle* sa) {
 		sa->buffer[i] = 0;
 	}
 
-	sa->steering_value.sensor_float = 10.0;
+	sa->steering_value.sensor_float = 0.0f;  // init with 0 for safety
 }
 
 void steering_angle_avg(struct SteeringAngle* sa, float steering_value) {
@@ -263,38 +284,50 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  uint32_t time_last = HAL_GetTick();
+  // Turn on the inverter
+
+
+  int time_sum = 0;
+  while (time_sum < 5000) {
+	 send_turn_on_inverter();
+
+	 // CAN messages at 50 ms interval
+	 time_sum += 50;
+	 HAL_Delay(50);
+  }
+
+  uint32_t time_last_5ms = HAL_GetTick();
+  uint32_t time_last_50ms = HAL_GetTick();
   uint32_t time_now;
   while (1)
   {
 	 time_now = HAL_GetTick();
-	 if (time_now - time_last > 1) {  // 50 ms interval
-		 // Send throttle in the first 4 bytes
-		 convert_float_display(&throttle_sensor.throttle_value, &txData.first, DECIMAL_POINT_2);
 
-		 // Send steering angle in the last 4 bytes
-		 convert_float_display(&steering_sensor.steering_value, &txData.second, DECIMAL_POINT_2);
+	 // Display
+	 if (time_now - time_last_5ms > 5) {
+		 send_throttle_steering_display(&throttle_sensor, &steering_sensor);
+		 time_last_5ms = time_now;  // update last time
+	 }
 
-		 // CAN messages at 50 ms interval
-		 send_CAN_message(0x102, &txData);
+	 // Inverter
+	 if (time_now - time_last_50ms > 50) {
+		 send_velocity_ref_inverter(&throttle_sensor);
+		 time_last_50ms = time_now;  // update last time
+	 }
 
-		 // Update last time
-		 time_last = time_now;
-	 } else {
-		 // Other tasks than CAN
-		 if (adc_complete_flag) {
-			 // Get throttle
-			 convert_adc_throttle(&throttle_sensor, raw_adc_values[0]);
-	//	     SpeedReference = ThrottleValue*MaxRPM/100.0;  // TODO: remove
+	 // Other tasks
+	 if (adc_complete_flag) {
+		 // Get throttle
+		 convert_adc_throttle(&throttle_sensor, raw_adc_values[0]);
+//	     SpeedReference = ThrottleValue*MaxRPM/100.0;  // TODO: remove
 
-			 // Get steering angle
-			 float steering_value = (raw_adc_values[1]-3200)/4095.0f*110.0f;
-			 steering_angle_avg(&steering_sensor, steering_value);
+		 // Get steering angle
+		 float steering_value = (raw_adc_values[1]-3200)/4095.0f*110.0f;
+		 steering_angle_avg(&steering_sensor, steering_value);
 
-			 // Reset ADC input
-			 HAL_ADC_Start_DMA(&hadc2, (uint32_t*) raw_adc_values, 2);
-			 adc_complete_flag = 0;
-		 }
+		 // Reset ADC input
+		 HAL_ADC_Start_DMA(&hadc2, (uint32_t*) raw_adc_values, 2);
+		 adc_complete_flag = 0;
 	 }
 
     /* USER CODE END WHILE */
@@ -456,15 +489,15 @@ static void MX_FDCAN1_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN FDCAN1_Init 2 */
-  txHeader.Identifier = 0x301;  // no need to init address yet
-    txHeader.IdType = FDCAN_STANDARD_ID;
-    txHeader.TxFrameType = FDCAN_DATA_FRAME;
-    txHeader.DataLength = FDCAN_DLC_BYTES_8;
-    txHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
-    txHeader.BitRateSwitch = FDCAN_BRS_OFF;
-    txHeader.FDFormat = FDCAN_CLASSIC_CAN;
-    txHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
-    txHeader.MessageMarker = 0;
+  tx_header.Identifier = 0x301;  // no need to init address yet
+    tx_header.IdType = FDCAN_STANDARD_ID;
+    tx_header.TxFrameType = FDCAN_DATA_FRAME;
+    tx_header.DataLength = FDCAN_DLC_BYTES_8;
+    tx_header.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
+    tx_header.BitRateSwitch = FDCAN_BRS_OFF;
+    tx_header.FDFormat = FDCAN_CLASSIC_CAN;
+    tx_header.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
+    tx_header.MessageMarker = 0;
   /* USER CODE END FDCAN1_Init 2 */
 
 }
