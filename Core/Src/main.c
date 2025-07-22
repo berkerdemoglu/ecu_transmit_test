@@ -118,10 +118,9 @@ void throttle_init(struct Throttle* thr) {
 
 void convert_adc_throttle(struct Throttle* th, uint16_t adc_value) {
 	 // Calibration
-	 float volt = (float) adc_value/4096*3.3;  // TODO: we should always get 0 ?
-	 float calc = (volt-0.42)*100/1.65;
+	 float volt = 3.3f*((float) adc_value) / 4096.0f;  // TODO: we should always get 0 ?
+	 float calc = ((float) volt-0.42f)*100.0f/1.65f;
 
-	 // This code below (adc_sum += calc ... etc) is very sus! TODO
 	 th->adc_sum -= th->buffer[th->buffer_index];
 
 	 // Add new sample
@@ -137,8 +136,8 @@ void convert_adc_throttle(struct Throttle* th, uint16_t adc_value) {
 
 	 float output_value = th->adc_sum / THROTTLE_BUFFER_SIZE;
 
-	 if (output_value > 100.0){
-		 output_value = 100.0;
+	 if (output_value > 100.0f){
+		 output_value = 100.0f;
 	 }
 
 	 // Hysteresis -- TODO: This could be cleaned up?
@@ -153,7 +152,7 @@ void convert_adc_throttle(struct Throttle* th, uint16_t adc_value) {
 	 if (th->throttle_activated == 1) {
 		 th->throttle_value.sensor_float = output_value;
 	 } else {
-		 th->throttle_value.sensor_float = 0.0;
+		 th->throttle_value.sensor_float = 0.0f;
 	 }
 }
 
@@ -264,30 +263,35 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  uint32_t time_last = HAL_GetTick();
+  uint32_t time_now;
   while (1)
   {
-	 // Send throttle in the first 4 bytes
-	 convert_float_display(&throttle_sensor.throttle_value, &txData.first, DECIMAL_POINT_0);
+	 time_now = HAL_GetTick();
+	 if (time_now - time_last > 50) {  // 50 ms interval
+		 // Send throttle in the first 4 bytes
+		 convert_float_display(&throttle_sensor.throttle_value, &txData.first, DECIMAL_POINT_0);
 
-	 // Send steering angle in the last 4 bytes
-	 convert_float_display(&steering_sensor.steering_value, &txData.second, DECIMAL_POINT_0);
+		 // Send steering angle in the last 4 bytes
+		 convert_float_display(&steering_sensor.steering_value, &txData.second, DECIMAL_POINT_0);
 
-	 // CAN messages at 50 ms interval
-	 send_CAN_message(0x102, &txData);
-	 HAL_Delay(50);
+		 // CAN messages at 50 ms interval
+		 send_CAN_message(0x102, &txData);
+	 } else {
+		 // Other tasks than CAN
+		 if (adc_complete_flag) {
+			 // Get throttle
+			 convert_adc_throttle(&throttle_sensor, raw_adc_values[0]);
+	//	     SpeedReference = ThrottleValue*MaxRPM/100.0;  // TODO: remove
 
-	 if (adc_complete_flag) {
-	     // Get throttle
-	     convert_adc_throttle(&throttle_sensor, raw_adc_values[0]);
-//	     SpeedReference = ThrottleValue*MaxRPM/100.0;  // TODO: remove
+			 // Get steering angle
+			 float steering_value = (raw_adc_values[1]-3200)/4095.0f*110.0f;
+			 steering_angle_avg(&steering_sensor, steering_value);
 
-	     // Get steering angle
-	     float steering_value = (raw_adc_values[1]-3200)/4095.0f*110.0f;
-	     steering_angle_avg(&steering_sensor, steering_value);
-
-	     // Reset ADC input
-	     HAL_ADC_Start_DMA(&hadc2, (uint32_t*) raw_adc_values, 2);
-	     adc_complete_flag = 0;
+			 // Reset ADC input
+			 HAL_ADC_Start_DMA(&hadc2, (uint32_t*) raw_adc_values, 2);
+			 adc_complete_flag = 0;
+		 }
 	 }
 
     /* USER CODE END WHILE */
