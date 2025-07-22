@@ -7,9 +7,9 @@
 ../Core/Src/main.c:173:6:steering_angle_avg	2
 ../Core/Src/main.c:191:6:HAL_ADC_ConvCpltCallback	1
 ../Core/Src/main.c:201:5:main	6
-../Core/Src/main.c:308:6:SystemClock_Config	3
-../Core/Src/main.c:355:13:MX_ADC2_Init	4
-../Core/Src/main.c:423:13:MX_FDCAN1_Init	2
-../Core/Src/main.c:472:13:MX_DMA_Init	1
-../Core/Src/main.c:491:13:MX_GPIO_Init	1
-../Core/Src/main.c:552:6:Error_Handler	1
+../Core/Src/main.c:311:6:SystemClock_Config	3
+../Core/Src/main.c:358:13:MX_ADC2_Init	4
+../Core/Src/main.c:426:13:MX_FDCAN1_Init	2
+../Core/Src/main.c:475:13:MX_DMA_Init	1
+../Core/Src/main.c:494:13:MX_GPIO_Init	1
+../Core/Src/main.c:543:6:Error_Handler	1
