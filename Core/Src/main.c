@@ -118,7 +118,7 @@ void throttle_init(struct Throttle* thr) {
 
 void convert_adc_throttle(struct Throttle* th, uint16_t adc_value) {
 	 // Calibration
-	 float volt = adc_value/4096*3.3;
+	 float volt = (float) adc_value/4096*3.3;  // TODO: we should always get 0 ?
 	 float calc = (volt-0.42)*100/1.65;
 
 	 // This code below (adc_sum += calc ... etc) is very sus! TODO
@@ -264,7 +264,6 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  int time_sum = 0;
   while (1)
   {
 	 // Send throttle in the first 4 bytes
@@ -275,7 +274,6 @@ int main(void)
 
 	 // CAN messages at 50 ms interval
 	 send_CAN_message(0x102, &txData);
-	 time_sum += 50;
 	 HAL_Delay(50);
 
 	 if (adc_complete_flag) {
@@ -289,6 +287,7 @@ int main(void)
 
 	     // Reset ADC input
 	     HAL_ADC_Start_DMA(&hadc2, (uint32_t*) raw_adc_values, 2);
+	     adc_complete_flag = 0;
 	 }
 
     /* USER CODE END WHILE */
