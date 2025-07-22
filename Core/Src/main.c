@@ -104,7 +104,7 @@ void send_velocity_ref_inverter(struct Throttle* th) {
 	// Check for safe throttle (and RPM) values
 	if (throttle_sensor.throttle_value.sensor_float <= 100.0f) {
 		tx_data.first.sensor_int = 0;
-		tx_data.second.sensor_float = throttle_sensor.throttle_value.sensor_float;
+		tx_data.second.sensor_float = 1*throttle_sensor.throttle_value.sensor_float;
 		send_CAN_message(0x301, &tx_data);
 
 		send_turn_on_inverter();
@@ -116,6 +116,15 @@ void send_throttle_steering_display(struct Throttle* th, struct SteeringAngle* s
 	 convert_float_display(&th->throttle_value, &tx_data.first, DECIMAL_POINT_2);
 
 	 // Send steering angle in the last 4 bytes
+	 // todo: REMOVE THE IF STATEMENTS HERELATER, THIS IS JUST FOR ROLLOUT
+
+	 if (sa->steering_value.sensor_float < 0) {
+		 if (sa->steering_value.sensor_float < -24.0f) {
+			 sa->steering_value.sensor_float = 24.0f;
+		 } else {
+			 sa->steering_value.sensor_float = -sa->steering_value.sensor_float;
+		 }
+	 }
 	 convert_float_display(&sa->steering_value, &tx_data.second, DECIMAL_POINT_2);
 
 	 send_CAN_message(0x102, &tx_data);
@@ -439,7 +448,7 @@ static void MX_ADC2_Init(void)
 
   /** Configure Regular Channel
   */
-  sConfig.Channel = ADC_CHANNEL_3;
+  sConfig.Channel = ADC_CHANNEL_1;
   sConfig.Rank = ADC_REGULAR_RANK_2;
   if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
   {
