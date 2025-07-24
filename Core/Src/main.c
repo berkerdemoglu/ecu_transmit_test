@@ -447,8 +447,16 @@ int main(void)
 	 }
 
 	 // Rearlight
-	 if (time_now - time_last_200ms > 200 && race_state.rain_state == STATE_RAIN) {
-		 HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
+	 if (time_now - time_last_200ms > 200) {
+		 if (race_state.rain_state == STATE_RAIN) {
+			 HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
+
+		 } else if (race_state.race_mode == MODE_RACE) {
+			 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_SET);
+		 } else {
+			 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_RESET);
+		 }
+
 		 time_last_200ms = time_now;  // update last time
 	 }
 
