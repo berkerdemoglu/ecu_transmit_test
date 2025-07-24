@@ -58,16 +58,16 @@ typedef union {
 
 // Race modes
 enum RaceMode {
-	MODE_PIT_LIMITER,
-	MODE_RACE,
-	MODE_ECO,
-	MODE_SENSOR_READING,
-	MODE_GYMKHANA
+	MODE_PIT_LIMITER = 1,
+	MODE_RACE = 2,
+	MODE_ECO = 3,
+	MODE_SENSOR_READING = 4,
+	MODE_GYMKHANA = 5
 };
 
 enum RainState {
-	STATE_NO_RAIN,
-	STATE_RAIN
+	STATE_NO_RAIN = 0,
+	STATE_RAIN = 1
 };
 
 struct RaceState {

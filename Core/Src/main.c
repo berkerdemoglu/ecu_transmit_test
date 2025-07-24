@@ -108,6 +108,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 					// Read which button was pressed
 					button_data_test.sensor_int = rx_data.sensor_int;
 					handle_button_press(&race_state, rx_data.bytes[0]);
+					break;
 			}
 		}
 
@@ -127,43 +128,57 @@ void race_state_init(struct RaceState* rs) {
 }
 
 void handle_button_press(struct RaceState* rs, uint8_t button_index) {
-	switch (button_index) {
-		case 1:  // Green
-			// TODO: possibly replace with a simple bit inversion
-			if (rs->rain_state == STATE_NO_RAIN) {
-				rs->rain_state = STATE_RAIN;
-			} else {  // rs->rain_state == STATE_RAIN
-				rs->rain_state = STATE_NO_RAIN;
-			}
-			break;
-		case 2:  // White
-			if (rs->race_mode == MODE_GYMKHANA) {
-				rs->race_mode = MODE_RACE;
-			} else {
-				rs->race_mode = MODE_GYMKHANA;
-			}
-			break;
-		case 3:  // Black
-			if (rs->race_mode == MODE_ECO) {
-				rs->race_mode = MODE_RACE;
-			} else {
-				rs->race_mode = MODE_ECO;
-			}
-			break;
-		case 4:  // Yellow
-			if (rs->race_mode == MODE_SENSOR_READING) {
-				rs->race_mode = MODE_RACE;
-			} else {
-				rs->race_mode = MODE_SENSOR_READING;
-			}
-			break;
-		case 5:  // Blue
-			if (rs->race_mode == MODE_PIT_LIMITER) {
-				rs->race_mode = MODE_RACE;
-			} else {
-				rs->race_mode = MODE_PIT_LIMITER;
-			}
-			break;
+	if (button_index == 1) {
+		// Rain state update, green button
+		// TODO: possibly replace with a simple bit inversion
+		if (rs->rain_state == STATE_NO_RAIN) {
+			rs->rain_state = STATE_RAIN;
+		} else {  // rs->rain_state == STATE_RAIN
+			rs->rain_state = STATE_NO_RAIN;
+		}
+
+		// Send rain state update message to display
+		tx_data.sensor_int = 0;  // reset transmit data
+		tx_data.bytes[0] = rs->rain_state;
+		send_CAN_message(0x302, &tx_data);
+	} else {
+		// Race mode update
+		switch (button_index) {
+			// TODO: Maybe use an enum for the button indices and names
+			case 2:  // White
+				if (rs->race_mode == MODE_GYMKHANA) {
+					rs->race_mode = MODE_RACE;
+				} else {
+					rs->race_mode = MODE_GYMKHANA;
+				}
+				break;
+			case 3:  // Black
+				if (rs->race_mode == MODE_ECO) {
+					rs->race_mode = MODE_RACE;
+				} else {
+					rs->race_mode = MODE_ECO;
+				}
+				break;
+			case 4:  // Yellow
+				if (rs->race_mode == MODE_SENSOR_READING) {
+					rs->race_mode = MODE_RACE;
+				} else {
+					rs->race_mode = MODE_SENSOR_READING;
+				}
+				break;
+			case 5:  // Blue
+				if (rs->race_mode == MODE_PIT_LIMITER) {
+					rs->race_mode = MODE_RACE;
+				} else {
+					rs->race_mode = MODE_PIT_LIMITER;
+				}
+				break;
+		}
+
+		// Send rain state update message to display
+		tx_data.sensor_int = 0;  // reset transmit data
+		tx_data.bytes[0] = rs->race_mode;
+		send_CAN_message(0x202, &tx_data);
 	}
 }
 
