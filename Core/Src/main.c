@@ -49,6 +49,9 @@ DMA_HandleTypeDef hdma_adc2;
 FDCAN_HandleTypeDef hfdcan1;
 
 /* USER CODE BEGIN PV */
+// Race state
+struct RaceState race_state;
+
 // Sensors
 struct Throttle throttle_sensor;
 struct SteeringAngle steering_sensor;
@@ -60,6 +63,8 @@ can_message_eight inverter_on_msg = { .sensor_int = 0x0101010101010101 };
 
 FDCAN_RxHeaderTypeDef rx_header;
 can_message_eight rx_data;
+
+can_message_eight button_data_test;
 
 // ADC
 __IO uint8_t adc_complete_flag = 0;
@@ -78,6 +83,91 @@ static void MX_FDCAN1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs) {
+	if ((RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE) != RESET)
+	{
+		// Retrieve Rx messages from RX FIFO0
+		if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &rx_header, rx_data.bytes) != HAL_OK)
+		{
+			// Reception Error
+			Error_Handler();
+		} else {
+			// No error, process received payload
+			switch (rx_header.Identifier) {
+				// Inverter
+				case 0x181:
+					break;
+				case 0x281:
+					break;
+				case 0x381:
+					break;
+				case 0x481:
+					break;
+				// Display
+				case 0x191:
+					// Read which button was pressed
+					button_data_test.sensor_int = rx_data.sensor_int;
+					handle_button_press(&race_state, rx_data.bytes[0]);
+			}
+		}
+
+		// Reactive receive notifications
+		if (HAL_FDCAN_ActivateNotification(hfdcan, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0) != HAL_OK)
+		{
+			Error_Handler();
+		}
+	}
+}
+
+
+// Race state
+void race_state_init(struct RaceState* rs) {
+	rs->rain_state = STATE_NO_RAIN;
+	rs->race_mode = MODE_RACE;
+}
+
+void handle_button_press(struct RaceState* rs, uint8_t button_index) {
+	switch (button_index) {
+		case 1:  // Green
+			// TODO: possibly replace with a simple bit inversion
+			if (rs->rain_state == STATE_NO_RAIN) {
+				rs->rain_state = STATE_RAIN;
+			} else {  // rs->rain_state == STATE_RAIN
+				rs->rain_state = STATE_NO_RAIN;
+			}
+			break;
+		case 2:  // White
+			if (rs->race_mode == MODE_GYMKHANA) {
+				rs->race_mode = MODE_RACE;
+			} else {
+				rs->race_mode = MODE_GYMKHANA;
+			}
+			break;
+		case 3:  // Black
+			if (rs->race_mode == MODE_ECO) {
+				rs->race_mode = MODE_RACE;
+			} else {
+				rs->race_mode = MODE_ECO;
+			}
+			break;
+		case 4:  // Yellow
+			if (rs->race_mode == MODE_SENSOR_READING) {
+				rs->race_mode = MODE_RACE;
+			} else {
+				rs->race_mode = MODE_SENSOR_READING;
+			}
+			break;
+		case 5:  // Blue
+			if (rs->race_mode == MODE_PIT_LIMITER) {
+				rs->race_mode = MODE_RACE;
+			} else {
+				rs->race_mode = MODE_PIT_LIMITER;
+			}
+			break;
+	}
+}
+
+
 void convert_float_display(can_message_four* msg_in, can_message_four* msg_out, int decimal_points) {
     // Used for MoTeC
 	msg_out->sensor_int = (uint32_t) (msg_in->sensor_float * decimal_points);
@@ -87,8 +177,6 @@ void convert_float_display(can_message_four* msg_in, can_message_four* msg_out, 
 void send_CAN_message(uint16_t address, can_message_eight* msg) {
     // Update ID of the transmit header
     tx_header.Identifier = address;
-
-    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);  // Toggle LED
 
     if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &tx_header, msg->bytes) != HAL_OK) {
         Error_Handler();
@@ -113,10 +201,11 @@ void send_velocity_ref_inverter(struct Throttle* th) {
 
 void send_throttle_steering_display(struct Throttle* th, struct SteeringAngle* sa) {
 	 // Send throttle in the first 4 bytes
+	 th->throttle_value.sensor_float *= 2;  // TODO: fix, this could be a problem!
 	 convert_float_display(&th->throttle_value, &tx_data.first, DECIMAL_POINT_2);
 
 	 // Send steering angle in the last 4 bytes
-	 // todo: REMOVE THE IF STATEMENTS HERELATER, THIS IS JUST FOR ROLLOUT
+	 // todo: REMOVE THE IF STATEMENTS HERE LATER, THIS IS JUST FOR ROLLOUT
 
 	 if (sa->steering_value.sensor_float < 0) {
 		 if (sa->steering_value.sensor_float < -24.0f) {

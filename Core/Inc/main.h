@@ -55,6 +55,27 @@ typedef union {
     uint8_t bytes[8];
 } can_message_eight;
 
+
+// Race modes
+enum RaceMode {
+	MODE_PIT_LIMITER,
+	MODE_RACE,
+	MODE_ECO,
+	MODE_SENSOR_READING,
+	MODE_GYMKHANA
+};
+
+enum RainState {
+	STATE_NO_RAIN,
+	STATE_RAIN
+};
+
+struct RaceState {
+	enum RainState rain_state;
+	enum RaceMode race_mode;
+};
+
+
 // Throttle
 #define THROTTLE_BUFFER_SIZE 32
 struct Throttle {
@@ -96,6 +117,9 @@ struct SteeringAngle {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
+void race_state_init(struct RaceState* rs);
+void handle_button_press(struct RaceState* rs, uint8_t button_index);
+
 void convert_float_display(can_message_four* msg_in, can_message_four* msg_out, int decimal_points);
 
 void send_CAN_message(uint16_t address, can_message_eight* msg);
