@@ -125,7 +125,11 @@ void convert_float_display(can_message_four* msg_in, can_message_four* msg_out, 
 void send_CAN_message(uint16_t address, can_message_eight* msg);
 void send_turn_on_inverter(void);
 void send_velocity_ref_inverter(struct Throttle* th);
+
+// Display transmission functions
 void send_throttle_steering_display(struct Throttle* th, struct SteeringAngle* sa);
+void send_race_mode_display(struct RaceState* rs);
+void send_rain_state_display(struct RaceState* rs);
 
 // Throttle functions
 void throttle_init(struct Throttle* thr);

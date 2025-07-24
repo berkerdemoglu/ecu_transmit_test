@@ -135,12 +135,12 @@ void handle_button_press(struct RaceState* rs, uint8_t button_index) {
 			rs->rain_state = STATE_RAIN;
 		} else {  // rs->rain_state == STATE_RAIN
 			rs->rain_state = STATE_NO_RAIN;
+			// Turn off rearlight
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_RESET);
 		}
 
 		// Send rain state update message to display
-		tx_data.sensor_int = 0;  // reset transmit data
-		tx_data.bytes[0] = rs->rain_state;
-		send_CAN_message(0x302, &tx_data);
+		send_rain_state_display(rs);
 	} else {
 		// Race mode update
 		switch (button_index) {
@@ -175,10 +175,8 @@ void handle_button_press(struct RaceState* rs, uint8_t button_index) {
 				break;
 		}
 
-		// Send rain state update message to display
-		tx_data.sensor_int = 0;  // reset transmit data
-		tx_data.bytes[0] = rs->race_mode;
-		send_CAN_message(0x202, &tx_data);
+		// Send race mode update message to display
+		send_race_mode_display(rs);
 	}
 }
 
@@ -214,6 +212,8 @@ void send_velocity_ref_inverter(struct Throttle* th) {
 	}
 }
 
+
+// Display transmission functions
 void send_throttle_steering_display(struct Throttle* th, struct SteeringAngle* sa) {
 	 // Send throttle in the first 4 bytes
 	 th->throttle_value.sensor_float *= 2;  // TODO: fix, this could be a problem!
@@ -221,7 +221,6 @@ void send_throttle_steering_display(struct Throttle* th, struct SteeringAngle* s
 
 	 // Send steering angle in the last 4 bytes
 	 // todo: REMOVE THE IF STATEMENTS HERE LATER, THIS IS JUST FOR ROLLOUT
-
 	 if (sa->steering_value.sensor_float < 0) {
 		 if (sa->steering_value.sensor_float < -24.0f) {
 			 sa->steering_value.sensor_float = 24.0f;
@@ -232,6 +231,18 @@ void send_throttle_steering_display(struct Throttle* th, struct SteeringAngle* s
 	 convert_float_display(&sa->steering_value, &tx_data.second, DECIMAL_POINT_2);
 
 	 send_CAN_message(0x102, &tx_data);
+}
+
+void send_race_mode_display(struct RaceState* rs) {
+	tx_data.sensor_int = 0;  // reset transmit data
+	tx_data.bytes[0] = rs->race_mode;
+	send_CAN_message(0x202, &tx_data);
+}
+
+void send_rain_state_display(struct RaceState* rs) {
+	tx_data.sensor_int = 0;  // reset transmit data
+	tx_data.bytes[0] = rs->rain_state;
+	send_CAN_message(0x302, &tx_data);
 }
 
 // Throttle functions
@@ -375,6 +386,8 @@ int main(void)
       Error_Handler();
     }
 
+  // Init race state
+  race_state_init(&race_state);
   // Init sensor structs
   throttle_init(&throttle_sensor);
   steering_angle_init(&steering_sensor);
@@ -409,8 +422,13 @@ int main(void)
 	 HAL_Delay(50);
   }
 
+  // Send Race Mode and Rain State
+  send_race_mode_display(&race_state);
+  send_rain_state_display(&race_state);
+
   uint32_t time_last_5ms = HAL_GetTick();
   uint32_t time_last_50ms = HAL_GetTick();
+  uint32_t time_last_200ms = HAL_GetTick();
   uint32_t time_now;
   while (1)
   {
@@ -428,6 +446,12 @@ int main(void)
 		 time_last_50ms = time_now;  // update last time
 	 }
 
+	 // Rearlight
+	 if (time_now - time_last_200ms > 200 && race_state.rain_state == STATE_RAIN) {
+		 HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
+		 time_last_200ms = time_now;  // update last time
+	 }
+
 	 // Other tasks
 	 if (adc_complete_flag) {
 		 // Get throttle
@@ -439,8 +463,8 @@ int main(void)
 		 steering_angle_avg(&steering_sensor, steering_value);
 
 		 // Reset ADC input
-		 HAL_ADC_Start_DMA(&hadc2, (uint32_t*) raw_adc_values, 2);
 		 adc_complete_flag = 0;
+		 HAL_ADC_Start_DMA(&hadc2, (uint32_t*) raw_adc_values, 2);
 	 }
 
     /* USER CODE END WHILE */
@@ -639,12 +663,24 @@ static void MX_DMA_Init(void)
   */
 static void MX_GPIO_Init(void)
 {
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
   /* USER CODE BEGIN MX_GPIO_Init_1 */
 
   /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : PB3 */
+  GPIO_InitStruct.Pin = GPIO_PIN_3;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
