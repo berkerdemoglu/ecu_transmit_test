@@ -61,8 +61,8 @@ all: main-build
 main-build: ECU_Transmit_Test.elf secondary-outputs
 
 # Tool invocations
-ECU_Transmit_Test.elf ECU_Transmit_Test.map: $(OBJS) $(USER_OBJS) D:\STM32CubeIDE\workspace_1.19.0\ECU_Transmit_Test\STM32G431KBTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "ECU_Transmit_Test.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\STM32CubeIDE\workspace_1.19.0\ECU_Transmit_Test\STM32G431KBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ECU_Transmit_Test.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+ECU_Transmit_Test.elf ECU_Transmit_Test.map: $(OBJS) $(USER_OBJS) /Users/jadlostan/Documents/GitHub/ecu_transmit_test/STM32G431KBTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "ECU_Transmit_Test.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/Users/jadlostan/Documents/GitHub/ecu_transmit_test/STM32G431KBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ECU_Transmit_Test.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

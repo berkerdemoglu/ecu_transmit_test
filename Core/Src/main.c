@@ -51,6 +51,7 @@ FDCAN_HandleTypeDef hfdcan1;
 /* USER CODE BEGIN PV */
 // Race state
 struct RaceState race_state;
+MotoState moto_state = STATE_PRECHARGE;
 
 // Sensors
 struct Throttle throttle_sensor;
@@ -120,12 +121,75 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 	}
 }
 
+// error detection
+
+void fault_pin_service()
+{
+    if (HAL_GPIO_ReadPin(PORT_RELAY_STATE, PIN_RELAY_STATE) == GPIO_PIN_SET) {
+
+            moto_state = STATE_ERROR;
+    }
+    if (HAL_GPIO_ReadPin(PORT_RELAY_STATE, PIN_RELAY_STATE) == GPIO_PIN_RESET) {
+    	if (moto_state == STATE_ERROR){
+
+                moto_state = STATE_NORMAL;
+    	}
+        }
+}
+
+
+
+
+//set output
+
+static inline void set_all(GPIO_PinState o1, GPIO_PinState o2,
+                           GPIO_PinState o3, GPIO_PinState o4)
+{
+    HAL_GPIO_WritePin(PORT_PRECHARGE, PIN_PRECHARGE, o1);
+    HAL_GPIO_WritePin(PORT_NORMAL, PIN_NORMAL, o2);
+    HAL_GPIO_WritePin(PORT_CHARGE, PIN_CHARGE, o3);
+    HAL_GPIO_WritePin(PORT_ERROR, PIN_ERROR, o4);
+}
 
 // Race state
 void race_state_init(struct RaceState* rs) {
 	rs->rain_state = STATE_NO_RAIN;
 	rs->race_mode = MODE_RACE;
 }
+
+//check moto_state
+void check_moto_state(uint8_t toggle_precharge) {
+    switch (moto_state) {
+        case STATE_PRECHARGE:
+            // Actions spécifiques au précharge
+         	 if (toggle_precharge > 200) {
+         				 HAL_GPIO_TogglePin(PORT_NORMAL, PIN_NORMAL);
+
+         			  }
+
+            break;
+
+        case STATE_NORMAL:
+            // Actions spécifiques au mode normal
+            set_all(GPIO_PIN_RESET, GPIO_PIN_SET, GPIO_PIN_RESET, GPIO_PIN_RESET);
+
+            break;
+
+        case STATE_CHARGE:
+            // Actions spécifiques à la charge
+            set_all(GPIO_PIN_RESET, GPIO_PIN_RESET, GPIO_PIN_SET, GPIO_PIN_RESET);
+
+            break;
+
+        case STATE_ERROR:
+            // Actions en cas d'erreur
+            set_all(GPIO_PIN_RESET, GPIO_PIN_RESET, GPIO_PIN_RESET, GPIO_PIN_SET);
+
+            break;
+    }
+}
+
+
 
 void handle_button_press(struct RaceState* rs, uint8_t button_index) {
 	if (button_index == 1) {
@@ -191,7 +255,7 @@ void send_CAN_message(uint16_t address, can_message_eight* msg) {
     // Update ID of the transmit header
     tx_header.Identifier = address;
 
-    if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &tx_header, msg->bytes) != HAL_OK) {
+  if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &tx_header, msg->bytes) != HAL_OK) {
         Error_Handler();
     }
 }
@@ -409,8 +473,26 @@ int main(void)
   }
 
   /* Infinite loop */
+
   /* USER CODE BEGIN WHILE */
+  uint32_t time_last_3000ms = HAL_GetTick();
+  uint32_t time_last_200ms = HAL_GetTick();
+  uint32_t time_now;
+  while (1)
+  {
+		 time_now = HAL_GetTick();
+  	 fault_pin_service();
+  	 if (time_now - time_last_3000ms > 3000)
+  	 {
+  			 moto_state = STATE_NORMAL;
+  			time_last_3000ms= -3000;
+  	}
+  	uint8_t toggle_precharge = time_now - time_last_200ms;
+  	 check_moto_state(toggle_precharge);
+
+  }
   // Turn on the inverter
+
 
 
   int time_sum = 0;
@@ -428,8 +510,9 @@ int main(void)
 
   uint32_t time_last_5ms = HAL_GetTick();
   uint32_t time_last_50ms = HAL_GetTick();
-  uint32_t time_last_200ms = HAL_GetTick();
-  uint32_t time_now;
+ // uint32_t time_last_200ms = HAL_GetTick(); attention!
+
+  //uint32_t time_now; ///// attention!
   while (1)
   {
 	 time_now = HAL_GetTick();
@@ -474,6 +557,10 @@ int main(void)
 		 adc_complete_flag = 0;
 		 HAL_ADC_Start_DMA(&hadc2, (uint32_t*) raw_adc_values, 2);
 	 }
+	 // state of the motorcycle
+	// fault_pin_service();
+//	 check_moto_state();
+
 
     /* USER CODE END WHILE */
 
@@ -681,14 +768,30 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : PB3 */
-  GPIO_InitStruct.Pin = GPIO_PIN_3;
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_3, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : PA4 PA5 PA6 */
+  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PB0 PB3 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_3;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PA8 */
+  GPIO_InitStruct.Pin = GPIO_PIN_8;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 

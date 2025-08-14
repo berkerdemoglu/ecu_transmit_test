@@ -35,6 +35,20 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#define PORT_RELAY_STATE  GPIOA
+#define PIN_RELAY_STATE  GPIO_PIN_8
+
+#define PORT_PRECHARGE  GPIOB
+#define PIN_PRECHARGE  GPIO_PIN_0 // not connected to LED
+
+#define PORT_NORMAL  GPIOA
+#define PIN_NORMAL   GPIO_PIN_4
+
+#define PORT_CHARGE  GPIOA
+#define PIN_CHARGE   GPIO_PIN_5
+
+#define PORT_ERROR  GPIOA
+#define PIN_ERROR   GPIO_PIN_6
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -55,6 +69,13 @@ typedef union {
     uint8_t bytes[8];
 } can_message_eight;
 
+// motorcycle State
+typedef enum {
+    STATE_PRECHARGE = 0,
+    STATE_NORMAL    = 1,
+    STATE_CHARGE    = 2,
+    STATE_ERROR     = 3
+} MotoState;
 
 // Race modes
 enum RaceMode {
