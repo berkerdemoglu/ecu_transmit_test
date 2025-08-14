@@ -1210,31 +1210,32 @@ int main(void)
 		 time_now = HAL_GetTick();
  8000a2e:	f000 fccb 	bl	80013c8 <HAL_GetTick>
  8000a32:	6078      	str	r0, [r7, #4]
-  	 fault_pin_service();
- 8000a34:	f7ff fde8 	bl	8000608 <fault_pin_service>
+
   	 if (time_now - time_last_3000ms > 3000)
- 8000a38:	687a      	ldr	r2, [r7, #4]
- 8000a3a:	68fb      	ldr	r3, [r7, #12]
- 8000a3c:	1ad3      	subs	r3, r2, r3
- 8000a3e:	f640 32b8 	movw	r2, #3000	@ 0xbb8
- 8000a42:	4293      	cmp	r3, r2
- 8000a44:	d904      	bls.n	8000a50 <main+0xc4>
+ 8000a34:	687a      	ldr	r2, [r7, #4]
+ 8000a36:	68fb      	ldr	r3, [r7, #12]
+ 8000a38:	1ad3      	subs	r3, r2, r3
+ 8000a3a:	f640 32b8 	movw	r2, #3000	@ 0xbb8
+ 8000a3e:	4293      	cmp	r3, r2
+ 8000a40:	d904      	bls.n	8000a4c <main+0xc0>
   	 {
   			 moto_state = STATE_NORMAL;
- 8000a46:	4b0f      	ldr	r3, [pc, #60]	@ (8000a84 <main+0xf8>)
- 8000a48:	2201      	movs	r2, #1
- 8000a4a:	701a      	strb	r2, [r3, #0]
-  			time_last_3000ms= -3000;
- 8000a4c:	4b0e      	ldr	r3, [pc, #56]	@ (8000a88 <main+0xfc>)
- 8000a4e:	60fb      	str	r3, [r7, #12]
+ 8000a42:	4b10      	ldr	r3, [pc, #64]	@ (8000a84 <main+0xf8>)
+ 8000a44:	2201      	movs	r2, #1
+ 8000a46:	701a      	strb	r2, [r3, #0]
+  			time_last_3000ms= -3000; // todo: change the code to be compliant with the rules
+ 8000a48:	4b0f      	ldr	r3, [pc, #60]	@ (8000a88 <main+0xfc>)
+ 8000a4a:	60fb      	str	r3, [r7, #12]
   	}
   	uint8_t toggle_precharge = time_now - time_last_200ms;
- 8000a50:	687b      	ldr	r3, [r7, #4]
- 8000a52:	b2da      	uxtb	r2, r3
- 8000a54:	68bb      	ldr	r3, [r7, #8]
- 8000a56:	b2db      	uxtb	r3, r3
- 8000a58:	1ad3      	subs	r3, r2, r3
- 8000a5a:	70fb      	strb	r3, [r7, #3]
+ 8000a4c:	687b      	ldr	r3, [r7, #4]
+ 8000a4e:	b2da      	uxtb	r2, r3
+ 8000a50:	68bb      	ldr	r3, [r7, #8]
+ 8000a52:	b2db      	uxtb	r3, r3
+ 8000a54:	1ad3      	subs	r3, r2, r3
+ 8000a56:	70fb      	strb	r3, [r7, #3]
+ 	 fault_pin_service();
+ 8000a58:	f7ff fdd6 	bl	8000608 <fault_pin_service>
   	 check_moto_state(toggle_precharge);
  8000a5c:	78fb      	ldrb	r3, [r7, #3]
  8000a5e:	4618      	mov	r0, r3
