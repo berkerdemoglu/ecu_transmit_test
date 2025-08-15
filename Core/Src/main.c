@@ -87,6 +87,8 @@ static void MX_FDCAN1_Init(void);
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs) {
 	if ((RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE) != RESET)
 	{
+		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
+
 		// Retrieve Rx messages from RX FIFO0
 		if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &rx_header, rx_data.bytes) != HAL_OK)
 		{
@@ -105,10 +107,10 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 				case 0x481:
 					break;
 				// Display
-				case 0x191:
+				case 0x301:
 					// Read which button was pressed
-					button_data_test.sensor_int = rx_data.sensor_int;
-					handle_button_press(&race_state, rx_data.bytes[0]);
+					//button_data_test.sensor_int = rx_data.sensor_int;
+					//handle_button_press(&race_state, rx_data.bytes[0]); todo: remove the comments
 					break;
 			}
 		}
@@ -473,23 +475,29 @@ int main(void)
   }
 
   /* Infinite loop */
-
   /* USER CODE BEGIN WHILE */
   uint32_t time_last_3000ms = HAL_GetTick();
   uint32_t time_last_200ms = HAL_GetTick();
   uint32_t time_now;
   while (1)
   {
-		 time_now = HAL_GetTick();
 
-  	 if (time_now - time_last_3000ms > 3000)
-  	 {
-  			 moto_state = STATE_NORMAL;
-  			time_last_3000ms= -3000; // todo: change the code to be compliant with the rules
-  	}
-  	uint8_t toggle_precharge = time_now - time_last_200ms;
- 	 fault_pin_service();
-  	 check_moto_state(toggle_precharge);
+		tx_data.first.sensor_int = 14;
+		tx_data.second.sensor_float = 23;
+	//  send_CAN_message(0x301, &tx_data);
+	//	 HAL_Delay(50);
+	//	 HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
+// a remetre pr l envoyeur
+	//	 time_now = HAL_GetTick();
+
+  	// if (time_now - time_last_3000ms > 3000)
+  	 //{
+  	//		 moto_state = STATE_NORMAL;
+  	//		time_last_3000ms= -3000; // todo: change the code to be compliant with the rules
+  //	}
+  //	uint8_t toggle_precharge = time_now - time_last_200ms;
+ 	// fault_pin_service();
+ // 	 check_moto_state(toggle_precharge);
 
   }
   // Turn on the inverter
@@ -772,7 +780,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_3, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_3|GPIO_PIN_8, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : PA4 PA5 PA6 */
   GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6;
@@ -781,8 +789,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PB0 PB3 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_3;
+  /*Configure GPIO pins : PB0 PB3 PB8 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_3|GPIO_PIN_8;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
