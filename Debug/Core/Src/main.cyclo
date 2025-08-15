@@ -16,7 +16,7 @@
 ../Core/Src/main.c:371:6:steering_angle_init	2
 ../Core/Src/main.c:384:6:steering_angle_avg	2
 ../Core/Src/main.c:402:6:HAL_ADC_ConvCpltCallback	1
-../Core/Src/main.c:412:5:main	4
+../Core/Src/main.c:412:5:main	5
 ../Core/Src/main.c:585:6:SystemClock_Config	3
 ../Core/Src/main.c:632:13:MX_ADC2_Init	4
 ../Core/Src/main.c:700:13:MX_FDCAN1_Init	2

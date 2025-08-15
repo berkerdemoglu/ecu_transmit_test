@@ -484,20 +484,20 @@ int main(void)
 
 		tx_data.first.sensor_int = 14;
 		tx_data.second.sensor_float = 23;
-	//  send_CAN_message(0x301, &tx_data);
-	//	 HAL_Delay(50);
-	//	 HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
+	  send_CAN_message(0x301, &tx_data);
+		 HAL_Delay(20);
+		 HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
 // a remetre pr l envoyeur
-	//	 time_now = HAL_GetTick();
+		 time_now = HAL_GetTick();
 
-  	// if (time_now - time_last_3000ms > 3000)
-  	 //{
-  	//		 moto_state = STATE_NORMAL;
-  	//		time_last_3000ms= -3000; // todo: change the code to be compliant with the rules
-  //	}
-  //	uint8_t toggle_precharge = time_now - time_last_200ms;
- 	// fault_pin_service();
- // 	 check_moto_state(toggle_precharge);
+  	 if (time_now - time_last_3000ms > 3000)
+  	 {
+  			 moto_state = STATE_NORMAL;
+  			time_last_3000ms= -3000; // todo: change the code to be compliant with the rules
+  	}
+  	uint8_t toggle_precharge = time_now - time_last_200ms;
+ 	 fault_pin_service();
+ 	 check_moto_state(toggle_precharge);
 
   }
   // Turn on the inverter
