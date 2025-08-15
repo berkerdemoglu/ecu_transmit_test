@@ -35,6 +35,20 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#define PORT_RELAY_STATE  GPIOA
+#define PIN_RELAY_STATE  GPIO_PIN_8
+
+#define PORT_PRECHARGE  GPIOB
+#define PIN_PRECHARGE  GPIO_PIN_0 // not connected to LED
+
+#define PORT_NORMAL  GPIOA
+#define PIN_NORMAL   GPIO_PIN_4
+
+#define PORT_CHARGE  GPIOA
+#define PIN_CHARGE   GPIO_PIN_5
+
+#define PORT_ERROR  GPIOA
+#define PIN_ERROR   GPIO_PIN_6
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -55,6 +69,59 @@ typedef union {
     uint8_t bytes[8];
 } can_message_eight;
 
+// motorcycle State
+typedef enum {
+    STATE_PRECHARGE = 0,
+    STATE_NORMAL    = 1,
+    STATE_CHARGE    = 2,
+    STATE_ERROR     = 3
+} MotoState;
+
+// Race modes
+enum RaceMode {
+	MODE_PIT_LIMITER = 1,
+	MODE_RACE = 2,
+	MODE_ECO = 3,
+	MODE_SENSOR_READING = 4,
+	MODE_GYMKHANA = 5
+};
+
+enum RainState {
+	STATE_NO_RAIN = 0,
+	STATE_RAIN = 1
+};
+
+struct RaceState {
+	enum RainState rain_state;
+	enum RaceMode race_mode;
+};
+
+
+// Throttle
+#define THROTTLE_BUFFER_SIZE 32
+struct Throttle {
+	float adc_sum;
+	float buffer[THROTTLE_BUFFER_SIZE];
+	uint8_t buffer_index;
+
+	can_message_four throttle_value;
+	float hysteresis;
+	float hysteresis_min;
+
+	uint8_t throttle_activated;  // flag
+};
+
+// Steering angle
+#define STEERING_BUFFER_SIZE 32
+struct SteeringAngle {
+	can_message_four steering_value;
+	float steering_output;
+
+	float adc_sum;
+	float buffer[STEERING_BUFFER_SIZE];
+	uint8_t buffer_index;
+};
+
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -71,21 +138,37 @@ typedef union {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-void send_CAN_message(uint16_t address, can_message_eight* msg);
+void race_state_init(struct RaceState* rs);
+void handle_button_press(struct RaceState* rs, uint8_t button_index);
 
 void convert_float_display(can_message_four* msg_in, can_message_four* msg_out, int decimal_points);
+
+void send_CAN_message(uint16_t address, can_message_eight* msg);
+void send_turn_on_inverter(void);
+void send_velocity_ref_inverter(struct Throttle* th);
+
+// Display transmission functions
+void send_throttle_steering_display(struct Throttle* th, struct SteeringAngle* sa);
+void send_race_mode_display(struct RaceState* rs);
+void send_rain_state_display(struct RaceState* rs);
+
+// Throttle functions
+void throttle_init(struct Throttle* thr);
+void convert_adc_throttle(struct Throttle* th, uint16_t raw_adc_value);
+
+// Steering angle functions
+void steering_angle_init(struct SteeringAngle* sa);
+void steering_angle_avg(struct SteeringAngle* sa, float value);
 
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define T_SWDIO_Pin GPIO_PIN_13
-#define T_SWDIO_GPIO_Port GPIOA
-#define T_SWCLK_Pin GPIO_PIN_14
-#define T_SWCLK_GPIO_Port GPIOA
-#define T_SWO_Pin GPIO_PIN_3
-#define T_SWO_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
+// Aswin throttle values (?)
+#define SPEED_REFERENCE 1500.0f  // TODO: remove
+#define MAX_RPM 1500.0f
+
 // The macros below are to be used in the convert function
 #define DECIMAL_POINT_0 1
 #define DECIMAL_POINT_1 10
