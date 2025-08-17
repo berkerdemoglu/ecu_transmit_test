@@ -35,6 +35,9 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#define CHARGER_RXID  0x000C0100
+#define CHARGER_TXID  0x000C0000
+
 #define PORT_RELAY_STATE  GPIOA
 #define PIN_RELAY_STATE  GPIO_PIN_8
 
@@ -85,6 +88,13 @@ enum RaceMode {
 	MODE_SENSOR_READING = 4,
 	MODE_GYMKHANA = 5
 };
+typedef enum  {
+	ON = 1,
+	VOUT_SET = 2,
+	IOUT_SET = 3,
+	FAULT_STATUS = 4,
+	OFF = 5
+} ChargerCom;
 
 enum RainState {
 	STATE_NO_RAIN = 0,
@@ -143,7 +153,8 @@ void handle_button_press(struct RaceState* rs, uint8_t button_index);
 
 void convert_float_display(can_message_four* msg_in, can_message_four* msg_out, int decimal_points);
 
-void send_CAN_message(uint16_t address, can_message_eight* msg);
+void send_CAN_message(uint32_t address, can_message_eight* msg);
+void send_CAN_message_four(uint32_t address, can_message_eight* msg);
 void send_turn_on_inverter(void);
 void send_velocity_ref_inverter(struct Throttle* th);
 

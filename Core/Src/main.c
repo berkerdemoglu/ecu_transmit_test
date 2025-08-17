@@ -52,6 +52,7 @@ FDCAN_HandleTypeDef hfdcan1;
 // Race state
 struct RaceState race_state;
 MotoState moto_state = STATE_PRECHARGE;
+ChargerCom charge_com = OFF;
 
 // Sensors
 struct Throttle throttle_sensor;
@@ -60,6 +61,7 @@ struct SteeringAngle steering_sensor;
 // CAN
 FDCAN_TxHeaderTypeDef tx_header;
 can_message_eight tx_data;
+can_message_eight tx_data_four;
 can_message_eight inverter_on_msg = { .sensor_int = 0x0101010101010101 };
 
 FDCAN_RxHeaderTypeDef rx_header;
@@ -253,13 +255,25 @@ void convert_float_display(can_message_four* msg_in, can_message_four* msg_out, 
 }
 
 
-void send_CAN_message(uint16_t address, can_message_eight* msg) {
+void send_CAN_message(uint32_t address, can_message_eight* msg) {
     // Update ID of the transmit header
     tx_header.Identifier = address;
 
   if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &tx_header, msg->bytes) != HAL_OK) {
         Error_Handler();
     }
+}
+void send_CAN_message_four(uint32_t address, can_message_eight* msg) {
+    // Update ID of the transmit header
+    tx_header.Identifier = address;
+    tx_header.DataLength = FDCAN_DLC_BYTES_4;
+
+  if (HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &tx_header, msg->bytes) != HAL_OK) {
+        Error_Handler();
+
+
+    }
+  tx_header.DataLength = FDCAN_DLC_BYTES_8;;
 }
 
 void send_turn_on_inverter(void) {
@@ -409,6 +423,53 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
   * @brief  The application entry point.
   * @retval int
   */
+
+// je dois changer le header pour ca
+
+ void CAN_Charger(void){
+	 if (charge_com==OFF){
+		 tx_data_four.bytes[0] = 0;
+		 tx_data_four.bytes[1] = 0;
+		 tx_data_four.bytes[2] = 0;
+		 tx_data_four.bytes[3] = 0;
+	 }
+	 if (charge_com==ON){
+		 tx_data_four.bytes[0] = 0;
+		 tx_data_four.bytes[1] = 0;
+		 tx_data_four.bytes[2] = 1;
+		 tx_data_four.bytes[3] = 0;
+	 }
+	 if (charge_com==VOUT_SET){
+		 tx_data_four.bytes[0] = 0x20;
+		 tx_data_four.bytes[1] = 0;
+		 tx_data_four.bytes[2] = 20;// change la valeur pour celle dont on a besoin
+		 tx_data_four.bytes[3] = 0; // attention frame format!
+
+	 }
+	 if (charge_com==IOUT_SET){
+		 tx_data_four.bytes[0] = 0x30;
+		 tx_data_four.bytes[1] = 0;
+		 tx_data_four.bytes[2] = 20;
+		 tx_data_four.bytes[3] = 0;
+	 }
+	 if (charge_com==FAULT_STATUS){
+// different action here
+	 }
+//	send_CAN_message_four(CHARGER_RXID, &tx_data_four); je dois le decommenter ensuite
+ }
+void  State_Change(uint32_t time_now,uint32_t time_last_200ms,uint32_t time_last_3000ms){
+	 uint8_t toggle_precharge = time_now - time_last_200ms;
+	if (time_now - time_last_3000ms > 3000)
+ 	 {
+ 			 moto_state = STATE_NORMAL;
+ 			time_last_3000ms= -3000; // todo: change the code to be compliant with the rules
+ 	}
+
+	 fault_pin_service();
+	 check_moto_state(toggle_precharge);
+}
+
+
 int main(void)
 {
 
@@ -482,22 +543,19 @@ int main(void)
   while (1)
   {
 
-		tx_data.first.sensor_int = 14;
-		tx_data.second.sensor_float = 23;
-	  send_CAN_message(0x301, &tx_data);
-		 HAL_Delay(20);
-		 HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
+	//	tx_data.first.sensor_int = 14;
+	//	tx_data.second.sensor_float = 23;
+	 // send_CAN_message(0x301, &tx_data);
+	//	 HAL_Delay(50);
+	//	 HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
 // a remetre pr l envoyeur
 		 time_now = HAL_GetTick();
 
-  	 if (time_now - time_last_3000ms > 3000)
-  	 {
-  			 moto_state = STATE_NORMAL;
-  			time_last_3000ms= -3000; // todo: change the code to be compliant with the rules
-  	}
-  	uint8_t toggle_precharge = time_now - time_last_200ms;
- 	 fault_pin_service();
- 	 check_moto_state(toggle_precharge);
+		 State_Change(time_now,time_last_200ms,time_last_3000ms);
+		 CAN_Charger();
+ 	 // Charger
+
+ 	 //
 
   }
   // Turn on the inverter
