@@ -65,7 +65,7 @@ can_message_eight tx_data_four;
 can_message_eight inverter_on_msg = { .sensor_int = 0x0101010101010101 };
 
 FDCAN_RxHeaderTypeDef rx_header;
-can_message_eight rx_data;
+can_message_four rx_data; // be carefull can_message eight and an message 4
 
 can_message_eight button_data_test;
 
@@ -106,7 +106,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 					break;
 				case 0x381:
 					break;
-				case 0x481:
+				case 0x000C0100:
 					break;
 				// Display
 				case 0x301:
@@ -273,7 +273,7 @@ void send_CAN_message_four(uint32_t address, can_message_eight* msg) {
 
 
     }
-  tx_header.DataLength = FDCAN_DLC_BYTES_8;;
+  tx_header.DataLength = FDCAN_DLC_BYTES_8;
 }
 
 void send_turn_on_inverter(void) {
@@ -552,9 +552,9 @@ int main(void)
 		// time_now = HAL_GetTick();
 
 		// State_Change(time_now,time_last_200ms,time_last_3000ms);
-		 CAN_Charger();
-		 HAL_Delay(200);
-		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
+		// CAN_Charger();
+	//	 HAL_Delay(200);
+	//	HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
 
  	 // Charger
 
