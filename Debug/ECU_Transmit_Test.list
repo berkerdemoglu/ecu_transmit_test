@@ -39,13 +39,13 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  17 .debug_line   00011c7e  00000000  00000000  0003fb9d  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    000d2038  00000000  00000000  0005181b  2**0
+ 18 .debug_str    000d2036  00000000  00000000  0005181b  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  00123853  2**0
+ 19 .comment      00000043  00000000  00000000  00123851  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  000048bc  00000000  00000000  00123898  2**2
+ 20 .debug_frame  000048bc  00000000  00000000  00123894  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 00000062  00000000  00000000  00128154  2**0
+ 21 .debug_line_str 00000062  00000000  00000000  00128150  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -717,91 +717,91 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
  8000738:	b580      	push	{r7, lr}
  800073a:	af00      	add	r7, sp, #0
 	 if (charge_com==OFF){
- 800073c:	4b22      	ldr	r3, [pc, #136]	@ (80007c8 <CAN_Charger+0x90>)
+ 800073c:	4b23      	ldr	r3, [pc, #140]	@ (80007cc <CAN_Charger+0x94>)
  800073e:	781b      	ldrb	r3, [r3, #0]
  8000740:	2b05      	cmp	r3, #5
  8000742:	d10b      	bne.n	800075c <CAN_Charger+0x24>
 		 tx_data_four.bytes[0] = 0;
- 8000744:	4b21      	ldr	r3, [pc, #132]	@ (80007cc <CAN_Charger+0x94>)
+ 8000744:	4b22      	ldr	r3, [pc, #136]	@ (80007d0 <CAN_Charger+0x98>)
  8000746:	2200      	movs	r2, #0
  8000748:	701a      	strb	r2, [r3, #0]
 		 tx_data_four.bytes[1] = 0;
- 800074a:	4b20      	ldr	r3, [pc, #128]	@ (80007cc <CAN_Charger+0x94>)
+ 800074a:	4b21      	ldr	r3, [pc, #132]	@ (80007d0 <CAN_Charger+0x98>)
  800074c:	2200      	movs	r2, #0
  800074e:	705a      	strb	r2, [r3, #1]
 		 tx_data_four.bytes[2] = 0;
- 8000750:	4b1e      	ldr	r3, [pc, #120]	@ (80007cc <CAN_Charger+0x94>)
+ 8000750:	4b1f      	ldr	r3, [pc, #124]	@ (80007d0 <CAN_Charger+0x98>)
  8000752:	2200      	movs	r2, #0
  8000754:	709a      	strb	r2, [r3, #2]
 		 tx_data_four.bytes[3] = 0;
- 8000756:	4b1d      	ldr	r3, [pc, #116]	@ (80007cc <CAN_Charger+0x94>)
+ 8000756:	4b1e      	ldr	r3, [pc, #120]	@ (80007d0 <CAN_Charger+0x98>)
  8000758:	2200      	movs	r2, #0
  800075a:	70da      	strb	r2, [r3, #3]
 	 }
 	 if (charge_com==ON){
- 800075c:	4b1a      	ldr	r3, [pc, #104]	@ (80007c8 <CAN_Charger+0x90>)
+ 800075c:	4b1b      	ldr	r3, [pc, #108]	@ (80007cc <CAN_Charger+0x94>)
  800075e:	781b      	ldrb	r3, [r3, #0]
  8000760:	2b01      	cmp	r3, #1
  8000762:	d10b      	bne.n	800077c <CAN_Charger+0x44>
 		 tx_data_four.bytes[0] = 0;
- 8000764:	4b19      	ldr	r3, [pc, #100]	@ (80007cc <CAN_Charger+0x94>)
+ 8000764:	4b1a      	ldr	r3, [pc, #104]	@ (80007d0 <CAN_Charger+0x98>)
  8000766:	2200      	movs	r2, #0
  8000768:	701a      	strb	r2, [r3, #0]
 		 tx_data_four.bytes[1] = 0;
- 800076a:	4b18      	ldr	r3, [pc, #96]	@ (80007cc <CAN_Charger+0x94>)
+ 800076a:	4b19      	ldr	r3, [pc, #100]	@ (80007d0 <CAN_Charger+0x98>)
  800076c:	2200      	movs	r2, #0
  800076e:	705a      	strb	r2, [r3, #1]
 		 tx_data_four.bytes[2] = 1;
- 8000770:	4b16      	ldr	r3, [pc, #88]	@ (80007cc <CAN_Charger+0x94>)
+ 8000770:	4b17      	ldr	r3, [pc, #92]	@ (80007d0 <CAN_Charger+0x98>)
  8000772:	2201      	movs	r2, #1
  8000774:	709a      	strb	r2, [r3, #2]
 		 tx_data_four.bytes[3] = 0;
- 8000776:	4b15      	ldr	r3, [pc, #84]	@ (80007cc <CAN_Charger+0x94>)
+ 8000776:	4b16      	ldr	r3, [pc, #88]	@ (80007d0 <CAN_Charger+0x98>)
  8000778:	2200      	movs	r2, #0
  800077a:	70da      	strb	r2, [r3, #3]
 	 }
 	 if (charge_com==VOUT_SET){
- 800077c:	4b12      	ldr	r3, [pc, #72]	@ (80007c8 <CAN_Charger+0x90>)
+ 800077c:	4b13      	ldr	r3, [pc, #76]	@ (80007cc <CAN_Charger+0x94>)
  800077e:	781b      	ldrb	r3, [r3, #0]
  8000780:	2b02      	cmp	r3, #2
  8000782:	d10b      	bne.n	800079c <CAN_Charger+0x64>
 		 tx_data_four.bytes[0] = 0x20;
- 8000784:	4b11      	ldr	r3, [pc, #68]	@ (80007cc <CAN_Charger+0x94>)
+ 8000784:	4b12      	ldr	r3, [pc, #72]	@ (80007d0 <CAN_Charger+0x98>)
  8000786:	2220      	movs	r2, #32
  8000788:	701a      	strb	r2, [r3, #0]
 		 tx_data_four.bytes[1] = 0;
- 800078a:	4b10      	ldr	r3, [pc, #64]	@ (80007cc <CAN_Charger+0x94>)
+ 800078a:	4b11      	ldr	r3, [pc, #68]	@ (80007d0 <CAN_Charger+0x98>)
  800078c:	2200      	movs	r2, #0
  800078e:	705a      	strb	r2, [r3, #1]
 		 tx_data_four.bytes[2] = 20;// change la valeur pour celle dont on a besoin
- 8000790:	4b0e      	ldr	r3, [pc, #56]	@ (80007cc <CAN_Charger+0x94>)
+ 8000790:	4b0f      	ldr	r3, [pc, #60]	@ (80007d0 <CAN_Charger+0x98>)
  8000792:	2214      	movs	r2, #20
  8000794:	709a      	strb	r2, [r3, #2]
 		 tx_data_four.bytes[3] = 0; // attention frame format!
- 8000796:	4b0d      	ldr	r3, [pc, #52]	@ (80007cc <CAN_Charger+0x94>)
+ 8000796:	4b0e      	ldr	r3, [pc, #56]	@ (80007d0 <CAN_Charger+0x98>)
  8000798:	2200      	movs	r2, #0
  800079a:	70da      	strb	r2, [r3, #3]
 
 	 }
 	 if (charge_com==IOUT_SET){
- 800079c:	4b0a      	ldr	r3, [pc, #40]	@ (80007c8 <CAN_Charger+0x90>)
+ 800079c:	4b0b      	ldr	r3, [pc, #44]	@ (80007cc <CAN_Charger+0x94>)
  800079e:	781b      	ldrb	r3, [r3, #0]
  80007a0:	2b03      	cmp	r3, #3
  80007a2:	d10b      	bne.n	80007bc <CAN_Charger+0x84>
 		 tx_data_four.bytes[0] = 0x30;
- 80007a4:	4b09      	ldr	r3, [pc, #36]	@ (80007cc <CAN_Charger+0x94>)
+ 80007a4:	4b0a      	ldr	r3, [pc, #40]	@ (80007d0 <CAN_Charger+0x98>)
  80007a6:	2230      	movs	r2, #48	@ 0x30
  80007a8:	701a      	strb	r2, [r3, #0]
 		 tx_data_four.bytes[1] = 0;
- 80007aa:	4b08      	ldr	r3, [pc, #32]	@ (80007cc <CAN_Charger+0x94>)
+ 80007aa:	4b09      	ldr	r3, [pc, #36]	@ (80007d0 <CAN_Charger+0x98>)
  80007ac:	2200      	movs	r2, #0
  80007ae:	705a      	strb	r2, [r3, #1]
 		 tx_data_four.bytes[2] = 20;
- 80007b0:	4b06      	ldr	r3, [pc, #24]	@ (80007cc <CAN_Charger+0x94>)
+ 80007b0:	4b07      	ldr	r3, [pc, #28]	@ (80007d0 <CAN_Charger+0x98>)
  80007b2:	2214      	movs	r2, #20
  80007b4:	709a      	strb	r2, [r3, #2]
 		 tx_data_four.bytes[3] = 0;
- 80007b6:	4b05      	ldr	r3, [pc, #20]	@ (80007cc <CAN_Charger+0x94>)
+ 80007b6:	4b06      	ldr	r3, [pc, #24]	@ (80007d0 <CAN_Charger+0x98>)
  80007b8:	2200      	movs	r2, #0
  80007ba:	70da      	strb	r2, [r3, #3]
 	 }
@@ -809,15 +809,15 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
 // different action here
 	 }
 	send_CAN_message_four(CHARGER_RXID, &tx_data_four); //je dois le decommenter ensuite
- 80007bc:	4903      	ldr	r1, [pc, #12]	@ (80007cc <CAN_Charger+0x94>)
- 80007be:	4804      	ldr	r0, [pc, #16]	@ (80007d0 <CAN_Charger+0x98>)
- 80007c0:	f7ff ff28 	bl	8000614 <send_CAN_message_four>
+ 80007bc:	4904      	ldr	r1, [pc, #16]	@ (80007d0 <CAN_Charger+0x98>)
+ 80007be:	f24c 0010 	movw	r0, #49168	@ 0xc010
+ 80007c2:	f7ff ff27 	bl	8000614 <send_CAN_message_four>
  }
- 80007c4:	bf00      	nop
- 80007c6:	bd80      	pop	{r7, pc}
- 80007c8:	20000000 	.word	0x20000000
- 80007cc:	200002c8 	.word	0x200002c8
- 80007d0:	000c0100 	.word	0x000c0100
+ 80007c6:	bf00      	nop
+ 80007c8:	bd80      	pop	{r7, pc}
+ 80007ca:	bf00      	nop
+ 80007cc:	20000000 	.word	0x20000000
+ 80007d0:	200002c8 	.word	0x200002c8
 
 080007d4 <main>:
 	 check_moto_state(toggle_precharge);
