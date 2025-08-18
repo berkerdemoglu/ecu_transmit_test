@@ -455,7 +455,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
 	 if (charge_com==FAULT_STATUS){
 // different action here
 	 }
-//	send_CAN_message_four(CHARGER_RXID, &tx_data_four); je dois le decommenter ensuite
+	send_CAN_message_four(CHARGER_RXID, &tx_data_four); //je dois le decommenter ensuite
  }
 void  State_Change(uint32_t time_now,uint32_t time_last_200ms,uint32_t time_last_3000ms){
 	 uint8_t toggle_precharge = time_now - time_last_200ms;
@@ -537,7 +537,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  uint32_t time_last_3000ms = HAL_GetTick();
+ // uint32_t time_last_3000ms = HAL_GetTick();
   uint32_t time_last_200ms = HAL_GetTick();
   uint32_t time_now;
   while (1)
@@ -546,13 +546,16 @@ int main(void)
 	//	tx_data.first.sensor_int = 14;
 	//	tx_data.second.sensor_float = 23;
 	 // send_CAN_message(0x301, &tx_data);
-	//	 HAL_Delay(50);
+
 	//	 HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
 // a remetre pr l envoyeur
-		 time_now = HAL_GetTick();
+		// time_now = HAL_GetTick();
 
-		 State_Change(time_now,time_last_200ms,time_last_3000ms);
+		// State_Change(time_now,time_last_200ms,time_last_3000ms);
 		 CAN_Charger();
+		 HAL_Delay(200);
+		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
+
  	 // Charger
 
  	 //
