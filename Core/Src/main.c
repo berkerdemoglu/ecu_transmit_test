@@ -425,53 +425,6 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
   * @brief  The application entry point.
   * @retval int
   */
-
-// je dois changer le header pour ca
-
- void CAN_Charger(void){
-	 if (charge_com==OFF){
-		 tx_data_four.bytes[0] = 0;
-		 tx_data_four.bytes[1] = 0;
-		 tx_data_four.bytes[2] = 0;
-		 tx_data_four.bytes[3] = 0;
-	 }
-	 if (charge_com==ON){
-		 tx_data_four.bytes[0] = 0;
-		 tx_data_four.bytes[1] = 0;
-		 tx_data_four.bytes[2] = 1;
-		 tx_data_four.bytes[3] = 0;
-	 }
-	 if (charge_com==VOUT_SET){
-		 tx_data_four.bytes[0] = 0x20;
-		 tx_data_four.bytes[1] = 0;
-		 tx_data_four.bytes[2] = 20;// change la valeur pour celle dont on a besoin
-		 tx_data_four.bytes[3] = 0; // attention frame format!
-
-	 }
-	 if (charge_com==IOUT_SET){
-		 tx_data_four.bytes[0] = 0x30;
-		 tx_data_four.bytes[1] = 0;
-		 tx_data_four.bytes[2] = 20;
-		 tx_data_four.bytes[3] = 0;
-	 }
-	 if (charge_com==FAULT_STATUS){
-// different action here
-	 }
-	send_CAN_message_four(CHARGER_RXID, &tx_data_four); //je dois le decommenter ensuite
- }
-void  State_Change(uint32_t time_now,uint32_t time_last_200ms,uint32_t time_last_3000ms){
-	 uint8_t toggle_precharge = time_now - time_last_200ms;
-	if (time_now - time_last_3000ms > 3000)
- 	 {
- 			 moto_state = STATE_NORMAL;
- 			time_last_3000ms= -3000; // todo: change the code to be compliant with the rules
- 	}
-
-	 fault_pin_service();
-	 check_moto_state(toggle_precharge);
-}
-
-
 int main(void)
 {
 
@@ -777,7 +730,7 @@ static void MX_FDCAN1_Init(void)
   hfdcan1.Init.AutoRetransmission = DISABLE;
   hfdcan1.Init.TransmitPause = DISABLE;
   hfdcan1.Init.ProtocolException = DISABLE;
-  hfdcan1.Init.NominalPrescaler = 8;
+  hfdcan1.Init.NominalPrescaler = 16;
   hfdcan1.Init.NominalSyncJumpWidth = 1;
   hfdcan1.Init.NominalTimeSeg1 = 13;
   hfdcan1.Init.NominalTimeSeg2 = 2;
@@ -845,7 +798,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_3|GPIO_PIN_8, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_3, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : PA4 PA5 PA6 */
   GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6;
@@ -854,8 +807,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PB0 PB3 PB8 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_3|GPIO_PIN_8;
+  /*Configure GPIO pins : PB0 PB3 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_3;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
