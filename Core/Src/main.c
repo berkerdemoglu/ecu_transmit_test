@@ -417,6 +417,52 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
 	adc_complete_flag = 1;
 }
 
+// je dois changer le header pour ca
+
+ void CAN_Charger(void){
+	 if (charge_com==OFF){
+		 tx_data_four.bytes[0] = 0;
+		 tx_data_four.bytes[1] = 0;
+		 tx_data_four.bytes[2] = 0;
+		 tx_data_four.bytes[3] = 0;
+	 }
+	 if (charge_com==ON){
+		 tx_data_four.bytes[0] = 0;
+		 tx_data_four.bytes[1] = 0;
+		 tx_data_four.bytes[2] = 1;
+		 tx_data_four.bytes[3] = 0;
+	 }
+	 if (charge_com==VOUT_SET){
+		 tx_data_four.bytes[0] = 0x20;
+		 tx_data_four.bytes[1] = 0;
+		 tx_data_four.bytes[2] = 20;// change la valeur pour celle dont on a besoin
+		 tx_data_four.bytes[3] = 0; // attention frame format!
+
+	 }
+	 if (charge_com==IOUT_SET){
+		 tx_data_four.bytes[0] = 0x30;
+		 tx_data_four.bytes[1] = 0;
+		 tx_data_four.bytes[2] = 20;
+		 tx_data_four.bytes[3] = 0;
+	 }
+	 if (charge_com==FAULT_STATUS){
+// different action here
+	 }
+	send_CAN_message_four(CHARGER_RXID, &tx_data_four); //je dois le decommenter ensuite
+ }
+void  State_Change(uint32_t time_now,uint32_t time_last_200ms,uint32_t time_last_3000ms){
+	 uint8_t toggle_precharge = time_now - time_last_200ms;
+	if (time_now - time_last_3000ms > 3000)
+ 	 {
+ 			 moto_state = STATE_NORMAL;
+ 			time_last_3000ms= -3000; // todo: change the code to be compliant with the rules
+ 	}
+
+	 fault_pin_service();
+	 check_moto_state(toggle_precharge);
+}
+
+
 /* USER CODE END 0 */
 
 /**
