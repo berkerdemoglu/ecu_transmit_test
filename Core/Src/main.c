@@ -52,7 +52,7 @@ FDCAN_HandleTypeDef hfdcan1;
 // Race state
 struct RaceState race_state;
 MotoState moto_state = STATE_PRECHARGE;
-ChargerCom charge_com = OFF;
+ChargerCom charge_com = ON;
 
 // Sensors
 struct Throttle throttle_sensor;
@@ -540,6 +540,9 @@ int main(void)
  // uint32_t time_last_3000ms = HAL_GetTick();
   uint32_t time_last_200ms = HAL_GetTick();
   uint32_t time_now;
+bool	tran = true;
+
+
   while (1)
   {
 
@@ -553,8 +556,15 @@ int main(void)
 
 		// State_Change(time_now,time_last_200ms,time_last_3000ms);
 		 CAN_Charger();
-		 HAL_Delay(200);
+		 HAL_Delay(2000);
 		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
+		if (tran){
+			charge_com = OFF;
+		}
+		if (!tran){
+			charge_com = ON;
+		}
+		tran = !tran;
 
  	 // Charger
 

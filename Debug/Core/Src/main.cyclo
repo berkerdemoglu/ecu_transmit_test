@@ -19,10 +19,10 @@
 ../Core/Src/main.c:416:6:HAL_ADC_ConvCpltCallback	1
 ../Core/Src/main.c:429:7:CAN_Charger	5
 ../Core/Src/main.c:460:7:State_Change	2
-../Core/Src/main.c:473:5:main	4
-../Core/Src/main.c:646:6:SystemClock_Config	3
-../Core/Src/main.c:693:13:MX_ADC2_Init	4
-../Core/Src/main.c:761:13:MX_FDCAN1_Init	2
-../Core/Src/main.c:810:13:MX_DMA_Init	1
-../Core/Src/main.c:829:13:MX_GPIO_Init	1
-../Core/Src/main.c:906:6:Error_Handler	1
+../Core/Src/main.c:473:5:main	6
+../Core/Src/main.c:656:6:SystemClock_Config	3
+../Core/Src/main.c:703:13:MX_ADC2_Init	4
+../Core/Src/main.c:771:13:MX_FDCAN1_Init	2
+../Core/Src/main.c:820:13:MX_DMA_Init	1
+../Core/Src/main.c:839:13:MX_GPIO_Init	1
+../Core/Src/main.c:916:6:Error_Handler	1
