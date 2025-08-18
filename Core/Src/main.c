@@ -104,11 +104,10 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 					break;
 				case 0x381:
 					break;
-				case 0x000C010:
-
+				case CHARGER_RXID:
+					HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
 					break;
 				case 16:
-					HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
 
 					break;
 				// Display
@@ -803,6 +802,8 @@ static void MX_FDCAN1_Init(void)
     tx_header.FDFormat = FDCAN_CLASSIC_CAN;
     tx_header.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
     tx_header.MessageMarker = 0;
+
+    rx_header.IdType= FDCAN_EXTENDED_ID;
   /* USER CODE END FDCAN1_Init 2 */
 
 }
