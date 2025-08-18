@@ -31,14 +31,12 @@ extern "C" {
 
 #include "stm32g4xx_nucleo.h"
 #include <stdio.h>
-#include <stdbool.h>
-
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-#define CHARGER_RXID  0x000C010
-#define CHARGER_TXID  0x000C000
+#define CHARGER_RXID  0x000C0100
+#define CHARGER_TXID  0x000C0000
 
 #define PORT_RELAY_STATE  GPIOA
 #define PIN_RELAY_STATE  GPIO_PIN_8
