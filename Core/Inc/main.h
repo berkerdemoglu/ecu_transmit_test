@@ -31,6 +31,8 @@ extern "C" {
 
 #include "stm32g4xx_nucleo.h"
 #include <stdio.h>
+#include <stdbool.h>
+
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -154,7 +156,7 @@ void handle_button_press(struct RaceState* rs, uint8_t button_index);
 void convert_float_display(can_message_four* msg_in, can_message_four* msg_out, int decimal_points);
 
 void send_CAN_message(uint32_t address, can_message_eight* msg);
-void send_CAN_message_four(uint32_t address, can_message_eight* msg);
+void send_CAN_message_four(uint32_t address, can_message_four* msg);
 void send_turn_on_inverter(void);
 void send_velocity_ref_inverter(struct Throttle* th);
 

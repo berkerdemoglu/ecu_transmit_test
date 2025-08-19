@@ -61,7 +61,7 @@ struct SteeringAngle steering_sensor;
 // CAN
 FDCAN_TxHeaderTypeDef tx_header;
 can_message_eight tx_data;
-can_message_eight tx_data_four;
+can_message_four tx_data_four;
 can_message_eight inverter_on_msg = { .sensor_int = 0x0101010101010101 };
 
 FDCAN_RxHeaderTypeDef rx_header;
@@ -263,7 +263,7 @@ void send_CAN_message(uint32_t address, can_message_eight* msg) {
         Error_Handler();
     }
 }
-void send_CAN_message_four(uint32_t address, can_message_eight* msg) {
+void send_CAN_message_four(uint32_t address, can_message_four* msg) {
     // Update ID of the transmit header
     tx_header.Identifier = address;
     tx_header.DataLength = FDCAN_DLC_BYTES_4;
