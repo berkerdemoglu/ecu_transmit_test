@@ -419,7 +419,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
 
 // je dois changer le header pour ca
 
- void CAN_Charger(void){
+ void CAN_Charger(uint8_t  value){
 	 if (charge_com==OFF){
 		 tx_data_four.bytes[0] = 0;
 		 tx_data_four.bytes[1] = 0;
@@ -435,15 +435,15 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
 	 if (charge_com==VOUT_SET){
 		 tx_data_four.bytes[0] = 0x20;
 		 tx_data_four.bytes[1] = 0;
-		 tx_data_four.bytes[2] = 20;// change la valeur pour celle dont on a besoin
-		 tx_data_four.bytes[3] = 0; // attention frame format!
+		 tx_data_four.bytes[2] = 0x58;// change la valeur pour celle dont on a besoin
+		 tx_data_four.bytes[3] = 0x1B; // attention frame format!
 
 	 }
 	 if (charge_com==IOUT_SET){
-		 tx_data_four.bytes[0] = 0x30;
+		 tx_data_four.bytes[0] = 0x20;
 		 tx_data_four.bytes[1] = 0;
-		 tx_data_four.bytes[2] = 20;
-		 tx_data_four.bytes[3] = 0;
+		 tx_data_four.bytes[2] = 0x10;
+		 tx_data_four.bytes[3] = 0x27;
 	 }
 	 if (charge_com==FAULT_STATUS){
 // different action here
@@ -543,7 +543,7 @@ int main(void)
   uint32_t time_last_200ms = HAL_GetTick();
   uint32_t time_now;
 bool	tran = true;
-
+uint8_t val = 90;
 
   while (1)
   {
@@ -557,14 +557,16 @@ bool	tran = true;
 		// time_now = HAL_GetTick();
 
 		// State_Change(time_now,time_last_200ms,time_last_3000ms);
-		 CAN_Charger();
+		 CAN_Charger(val);
 		 HAL_Delay(2000);
 		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
 		if (tran){
-			charge_com = OFF;
+			charge_com= VOUT_SET ;
+			val = 90;
 		}
 		if (!tran){
-			charge_com = ON;
+			charge_com=IOUT_SET ;
+			val = 110;
 		}
 		tran = !tran;
 
