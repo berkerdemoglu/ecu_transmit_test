@@ -757,6 +757,7 @@ static void MX_FDCAN1_Init(void)
     tx_header.MessageMarker = 0;
 
     rx_header.IdType= FDCAN_EXTENDED_ID;
+
   /* USER CODE END FDCAN1_Init 2 */
 
 }
