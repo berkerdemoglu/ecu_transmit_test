@@ -61,7 +61,7 @@ struct SteeringAngle steering_sensor;
 // CAN
 FDCAN_TxHeaderTypeDef tx_header;
 can_message_eight tx_data;
-can_message_eight tx_data_four;
+can_message_four tx_data_four;
 can_message_eight inverter_on_msg = { .sensor_int = 0x0101010101010101 };
 
 FDCAN_RxHeaderTypeDef rx_header;
@@ -263,7 +263,7 @@ void send_CAN_message(uint32_t address, can_message_eight* msg) {
         Error_Handler();
     }
 }
-void send_CAN_message_four(uint32_t address, can_message_eight* msg) {
+void send_CAN_message_four(uint32_t address, can_message_four* msg) {
     // Update ID of the transmit header
     tx_header.Identifier = address;
     tx_header.DataLength = FDCAN_DLC_BYTES_4;
@@ -853,7 +853,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_3, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_3|GPIO_PIN_8, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : PA4 PA5 PA6 */
   GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6;
@@ -862,8 +862,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PB0 PB3 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_3;
+  /*Configure GPIO pins : PB0 PB3 PB8 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_3|GPIO_PIN_8;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

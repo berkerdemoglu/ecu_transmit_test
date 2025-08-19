@@ -21,9 +21,9 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
   8 .data         00000018  20000000  08005c14  00007000  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  9 .bss          00000388  20000018  08005c2c  00007018  2**3
+  9 .bss          00000380  20000018  08005c2c  00007018  2**3
                   ALLOC
- 10 ._user_heap_stack 00000600  200003a0  08005c2c  000073a0  2**0
+ 10 ._user_heap_stack 00000600  20000398  08005c2c  00007398  2**0
                   ALLOC
  11 .ARM.attributes 00000030  00000000  00000000  00007018  2**0
                   CONTENTS, READONLY
@@ -483,8 +483,8 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
  80005e4:	46bd      	mov	sp, r7
  80005e6:	bd80      	pop	{r7, pc}
  80005e8:	48000400 	.word	0x48000400
- 80005ec:	200002f8 	.word	0x200002f8
- 80005f0:	200002d0 	.word	0x200002d0
+ 80005ec:	200002f0 	.word	0x200002f0
+ 80005f0:	200002c8 	.word	0x200002c8
 
 080005f4 <race_state_init>:
     HAL_GPIO_WritePin(PORT_CHARGE, PIN_CHARGE, o3);
@@ -518,7 +518,7 @@ void race_state_init(struct RaceState* rs) {
         Error_Handler();
     }
 }
-void send_CAN_message_four(uint32_t address, can_message_eight* msg) {
+void send_CAN_message_four(uint32_t address, can_message_four* msg) {
  8000614:	b580      	push	{r7, lr}
  8000616:	b082      	sub	sp, #8
  8000618:	af00      	add	r7, sp, #0
@@ -705,11 +705,9 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
  800072c:	f85d 7b04 	ldr.w	r7, [sp], #4
  8000730:	4770      	bx	lr
  8000732:	bf00      	nop
- 8000734:	20000300 	.word	0x20000300
+ 8000734:	200002f8 	.word	0x200002f8
 
 08000738 <CAN_Charger>:
-  * @retval int
-  */
 
 // je dois changer le header pour ca
 
@@ -812,29 +810,29 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
  80007bc:	4b08      	ldr	r3, [pc, #32]	@ (80007e0 <CAN_Charger+0xa8>)
  80007be:	f04f 4280 	mov.w	r2, #1073741824	@ 0x40000000
  80007c2:	605a      	str	r2, [r3, #4]
-
 	send_CAN_message_four(CHARGER_RXID, &tx_data_four); //je dois le decommenter ensuite
  80007c4:	4905      	ldr	r1, [pc, #20]	@ (80007dc <CAN_Charger+0xa4>)
  80007c6:	4807      	ldr	r0, [pc, #28]	@ (80007e4 <CAN_Charger+0xac>)
  80007c8:	f7ff ff24 	bl	8000614 <send_CAN_message_four>
-tx_header.IdType = FDCAN_STANDARD_ID;
+    tx_header.IdType = FDCAN_STANDARD_ID;
  80007cc:	4b04      	ldr	r3, [pc, #16]	@ (80007e0 <CAN_Charger+0xa8>)
  80007ce:	2200      	movs	r2, #0
  80007d0:	605a      	str	r2, [r3, #4]
+
  }
  80007d2:	bf00      	nop
  80007d4:	bd80      	pop	{r7, pc}
  80007d6:	bf00      	nop
  80007d8:	20000000 	.word	0x20000000
- 80007dc:	200002c8 	.word	0x200002c8
+ 80007dc:	200002c4 	.word	0x200002c4
  80007e0:	200002a0 	.word	0x200002a0
  80007e4:	000c0100 	.word	0x000c0100
 
 080007e8 <main>:
-	 check_moto_state(toggle_precharge);
-}
-
-
+/**
+  * @brief  The application entry point.
+  * @retval int
+  */
 int main(void)
 {
  80007e8:	b580      	push	{r7, lr}
@@ -1012,7 +1010,7 @@ bool	tran = true;
 		 CAN_Charger();
  80008d8:	e7d6      	b.n	8000888 <main+0xa0>
  80008da:	bf00      	nop
- 80008dc:	20000304 	.word	0x20000304
+ 80008dc:	200002fc 	.word	0x200002fc
  80008e0:	20000044 	.word	0x20000044
  80008e4:	20000110 	.word	0x20000110
  80008e8:	20000174 	.word	0x20000174
@@ -1346,9 +1344,9 @@ static void MX_FDCAN1_Init(void)
  8000aac:	4b24      	ldr	r3, [pc, #144]	@ (8000b40 <MX_FDCAN1_Init+0xbc>)
  8000aae:	2200      	movs	r2, #0
  8000ab0:	749a      	strb	r2, [r3, #18]
-  hfdcan1.Init.NominalPrescaler = 8;
+  hfdcan1.Init.NominalPrescaler = 16;
  8000ab2:	4b23      	ldr	r3, [pc, #140]	@ (8000b40 <MX_FDCAN1_Init+0xbc>)
- 8000ab4:	2208      	movs	r2, #8
+ 8000ab4:	2210      	movs	r2, #16
  8000ab6:	615a      	str	r2, [r3, #20]
   hfdcan1.Init.NominalSyncJumpWidth = 1;
  8000ab8:	4b21      	ldr	r3, [pc, #132]	@ (8000b40 <MX_FDCAN1_Init+0xbc>)
@@ -2371,7 +2369,7 @@ LoopForever:
   ldr r2, =_sbss
  8000fa4:	20000018 	.word	0x20000018
   ldr r4, =_ebss
- 8000fa8:	200003a0 	.word	0x200003a0
+ 8000fa8:	20000398 	.word	0x20000398
 
 08000fac <COMP1_2_3_IRQHandler>:
  * @retval : None
@@ -2523,7 +2521,7 @@ int32_t BSP_COM_Init(COM_TypeDef COM, COM_InitTypeDef *COM_Init)
  8001072:	46bd      	mov	sp, r7
  8001074:	bd80      	pop	{r7, pc}
  8001076:	bf00      	nop
- 8001078:	20000308 	.word	0x20000308
+ 8001078:	20000300 	.word	0x20000300
 
 0800107c <MX_LPUART1_Init>:
   * @param  COM_Init Pointer to a UART_HandleTypeDef structure that contains the
@@ -2850,7 +2848,7 @@ __weak void HAL_IncTick(void)
  8001230:	46bd      	mov	sp, r7
  8001232:	f85d 7b04 	ldr.w	r7, [sp], #4
  8001236:	4770      	bx	lr
- 8001238:	2000039c 	.word	0x2000039c
+ 8001238:	20000394 	.word	0x20000394
  800123c:	20000014 	.word	0x20000014
 
 08001240 <HAL_GetTick>:
@@ -2871,7 +2869,7 @@ __weak uint32_t HAL_GetTick(void)
  800124c:	f85d 7b04 	ldr.w	r7, [sp], #4
  8001250:	4770      	bx	lr
  8001252:	bf00      	nop
- 8001254:	2000039c 	.word	0x2000039c
+ 8001254:	20000394 	.word	0x20000394
 
 08001258 <HAL_Delay>:
   *       implementations in user file.

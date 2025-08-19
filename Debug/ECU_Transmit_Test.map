@@ -4334,7 +4334,7 @@ LOAD /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.id
  .igot.plt      0x20000018        0x0 /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.macos64_1.0.0.202411102158/tools/bin/../lib/gcc/arm-none-eabi/13.3.1/thumb/v7e-m+fp/hard/crtbegin.o
                 0x20000018                        . = ALIGN (0x4)
 
-.bss            0x20000018      0x388 load address 0x08005c2c
+.bss            0x20000018      0x380 load address 0x08005c2c
                 0x20000018                        _sbss = .
                 0x20000018                        __bss_start__ = _sbss
  *(.bss)
@@ -4363,42 +4363,41 @@ LOAD /Applications/STM32CubeIDE.app/Contents/Eclipse/plugins/com.st.stm32cube.id
  .bss.tx_header
                 0x200002a0       0x24 ./Core/Src/main.o
                 0x200002a0                tx_header
- *fill*         0x200002c4        0x4 
  .bss.tx_data_four
-                0x200002c8        0x8 ./Core/Src/main.o
-                0x200002c8                tx_data_four
+                0x200002c4        0x4 ./Core/Src/main.o
+                0x200002c4                tx_data_four
  .bss.rx_header
-                0x200002d0       0x28 ./Core/Src/main.o
-                0x200002d0                rx_header
- .bss.rx_data   0x200002f8        0x8 ./Core/Src/main.o
-                0x200002f8                rx_data
+                0x200002c8       0x28 ./Core/Src/main.o
+                0x200002c8                rx_header
+ .bss.rx_data   0x200002f0        0x8 ./Core/Src/main.o
+                0x200002f0                rx_data
  .bss.adc_complete_flag
-                0x20000300        0x1 ./Core/Src/main.o
-                0x20000300                adc_complete_flag
- *fill*         0x20000301        0x3 
+                0x200002f8        0x1 ./Core/Src/main.o
+                0x200002f8                adc_complete_flag
+ *fill*         0x200002f9        0x3 
  .bss.raw_adc_values
-                0x20000304        0x4 ./Core/Src/main.o
-                0x20000304                raw_adc_values
+                0x200002fc        0x4 ./Core/Src/main.o
+                0x200002fc                raw_adc_values
  .bss.hcom_uart
-                0x20000308       0x94 ./Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.o
-                0x20000308                hcom_uart
- .bss.uwTick    0x2000039c        0x4 ./Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal.o
-                0x2000039c                uwTick
+                0x20000300       0x94 ./Drivers/BSP/STM32G4xx_Nucleo/stm32g4xx_nucleo.o
+                0x20000300                hcom_uart
+ .bss.uwTick    0x20000394        0x4 ./Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal.o
+                0x20000394                uwTick
  *(COMMON)
-                0x200003a0                        . = ALIGN (0x4)
-                0x200003a0                        _ebss = .
-                0x200003a0                        __bss_end__ = _ebss
+                0x20000398                        . = ALIGN (0x4)
+                0x20000398                        _ebss = .
+                0x20000398                        __bss_end__ = _ebss
 
 ._user_heap_stack
-                0x200003a0      0x600 load address 0x08005c2c
-                0x200003a0                        . = ALIGN (0x8)
+                0x20000398      0x600 load address 0x08005c2c
+                0x20000398                        . = ALIGN (0x8)
                 [!provide]                        PROVIDE (end = .)
-                0x200003a0                        PROVIDE (_end = .)
-                0x200005a0                        . = (. + _Min_Heap_Size)
- *fill*         0x200003a0      0x200 
-                0x200009a0                        . = (. + _Min_Stack_Size)
- *fill*         0x200005a0      0x400 
-                0x200009a0                        . = ALIGN (0x8)
+                0x20000398                        PROVIDE (_end = .)
+                0x20000598                        . = (. + _Min_Heap_Size)
+ *fill*         0x20000398      0x200 
+                0x20000998                        . = (. + _Min_Stack_Size)
+ *fill*         0x20000598      0x400 
+                0x20000998                        . = ALIGN (0x8)
 
 /DISCARD/
  libc.a(*)
