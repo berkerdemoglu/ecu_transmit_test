@@ -53,7 +53,7 @@ FDCAN_HandleTypeDef hfdcan1;
 struct RaceState race_state;
 MotoState moto_state = STATE_PRECHARGE;
 ChargerCom charge_com = ON;
-
+BMSCom BMS = SLEEP;
 // Sensors
 struct Throttle throttle_sensor;
 struct SteeringAngle steering_sensor;
@@ -453,6 +453,31 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
     tx_header.IdType = FDCAN_STANDARD_ID;
 
  }
+ void BMS_Charger(void){
+
+	 if (BMS==SLEEP){
+		 tx_data.bytes[0] = 0x20;
+		 tx_data.bytes[1] = 0;
+		 tx_data.bytes[2] = 0x10;
+		 tx_data.bytes[3] = 0x27;
+		 tx_data.bytes[4] = 0x20;
+		 tx_data.bytes[5] = 0;
+		 tx_data.bytes[6] = 0x10;
+		 tx_data.bytes[7] = 0x27;
+	 }
+	 if (BMS== BMS_ON){
+		 tx_data.bytes[0] = 0x20;
+		 tx_data.bytes[1] = 0;
+		 tx_data.bytes[2] = 0x10;
+		 tx_data.bytes[3] = 0x27;
+		 tx_data.bytes[4] = 0x20;
+		 tx_data.bytes[5] = 0;
+		 tx_data.bytes[6] = 0x10;
+		 tx_data.bytes[7] = 0x27;
+	 }
+		send_CAN_message(BMS_RXID, &tx_data); //je dois le decommenter ensuite
+
+ }
 void  State_Change(uint32_t time_now,uint32_t time_last_200ms,uint32_t time_last_3000ms){
 	 uint8_t toggle_precharge = time_now - time_last_200ms;
 	if (time_now - time_last_3000ms > 3000)
@@ -539,11 +564,9 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
- // uint32_t time_last_3000ms = HAL_GetTick();
   uint32_t time_last_200ms = HAL_GetTick();
   uint32_t time_now;
-bool	tran = true;
-uint8_t val = 90;
+uint8_t val = 0;
 
   while (1)
   {
@@ -557,18 +580,24 @@ uint8_t val = 90;
 		// time_now = HAL_GetTick();
 
 		// State_Change(time_now,time_last_200ms,time_last_3000ms);
-		 CAN_Charger(val);
-		 HAL_Delay(2000);
-		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
-		if (tran){
-			charge_com= VOUT_SET ;
-			val = 90;
+		 time_now = HAL_GetTick();
+
+		 if (time_now - time_last_200ms > 200) {
+			 BMS_Charger();
+					HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
+					 time_last_200ms = time_now;
+					 ++val;
+
+		 }
+
+		if (val ==10){
+			BMS= BMS_ON ;
+			val = 11;
 		}
-		if (!tran){
-			charge_com=IOUT_SET ;
-			val = 110;
+		if (val ==21){
+			charge_com= SLEEP ;
+			val = 0;
 		}
-		tran = !tran;
 
  	 // Charger
 

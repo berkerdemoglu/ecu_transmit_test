@@ -39,6 +39,7 @@ extern "C" {
 
 #define CHARGER_RXID  0x000C0100
 #define CHARGER_TXID  0x000C0000
+#define BMS_RXID  0x232
 
 #define PORT_RELAY_STATE  GPIOA
 #define PIN_RELAY_STATE  GPIO_PIN_8
@@ -97,6 +98,14 @@ typedef enum  {
 	FAULT_STATUS = 4,
 	OFF = 5
 } ChargerCom;
+
+typedef enum  {
+	BMS_ON = 1,
+	SLEEP = 2,
+	Voltage = 3,
+	current = 4,
+} BMSCom;
+
 
 enum RainState {
 	STATE_NO_RAIN = 0,
