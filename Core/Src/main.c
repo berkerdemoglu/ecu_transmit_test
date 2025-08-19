@@ -448,7 +448,10 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc){
 	 if (charge_com==FAULT_STATUS){
 // different action here
 	 }
+	    tx_header.IdType = FDCAN_EXTENDED_ID;
 	send_CAN_message_four(CHARGER_RXID, &tx_data_four); //je dois le decommenter ensuite
+    tx_header.IdType = FDCAN_STANDARD_ID;
+
  }
 void  State_Change(uint32_t time_now,uint32_t time_last_200ms,uint32_t time_last_3000ms){
 	 uint8_t toggle_precharge = time_now - time_last_200ms;
