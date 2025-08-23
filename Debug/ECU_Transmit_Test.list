@@ -385,125 +385,127 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
  800054e:	683b      	ldr	r3, [r7, #0]
  8000550:	f003 0301 	and.w	r3, r3, #1
  8000554:	2b00      	cmp	r3, #0
- 8000556:	d056      	beq.n	8000606 <HAL_FDCAN_RxFifo0Callback+0xc2>
+ 8000556:	d057      	beq.n	8000608 <HAL_FDCAN_RxFifo0Callback+0xc4>
 	{
+		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
+ 8000558:	f44f 7180 	mov.w	r1, #256	@ 0x100
+ 800055c:	482c      	ldr	r0, [pc, #176]	@ (8000610 <HAL_FDCAN_RxFifo0Callback+0xcc>)
+ 800055e:	f003 fc5b 	bl	8003e18 <HAL_GPIO_TogglePin>
+
 
 		// Retrieve Rx messages from RX FIFO0
 		if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &rx_header, rx_data.bytes) != HAL_OK)
- 8000558:	4b2d      	ldr	r3, [pc, #180]	@ (8000610 <HAL_FDCAN_RxFifo0Callback+0xcc>)
- 800055a:	4a2e      	ldr	r2, [pc, #184]	@ (8000614 <HAL_FDCAN_RxFifo0Callback+0xd0>)
- 800055c:	2140      	movs	r1, #64	@ 0x40
- 800055e:	6878      	ldr	r0, [r7, #4]
- 8000560:	f002 fee0 	bl	8003324 <HAL_FDCAN_GetRxMessage>
- 8000564:	4603      	mov	r3, r0
- 8000566:	2b00      	cmp	r3, #0
- 8000568:	d002      	beq.n	8000570 <HAL_FDCAN_RxFifo0Callback+0x2c>
+ 8000562:	4b2c      	ldr	r3, [pc, #176]	@ (8000614 <HAL_FDCAN_RxFifo0Callback+0xd0>)
+ 8000564:	4a2c      	ldr	r2, [pc, #176]	@ (8000618 <HAL_FDCAN_RxFifo0Callback+0xd4>)
+ 8000566:	2140      	movs	r1, #64	@ 0x40
+ 8000568:	6878      	ldr	r0, [r7, #4]
+ 800056a:	f002 fedb 	bl	8003324 <HAL_FDCAN_GetRxMessage>
+ 800056e:	4603      	mov	r3, r0
+ 8000570:	2b00      	cmp	r3, #0
+ 8000572:	d002      	beq.n	800057a <HAL_FDCAN_RxFifo0Callback+0x36>
 		{
 			// Reception Error
 			Error_Handler();
- 800056a:	f000 faf3 	bl	8000b54 <Error_Handler>
- 800056e:	e040      	b.n	80005f2 <HAL_FDCAN_RxFifo0Callback+0xae>
+ 8000574:	f000 faee 	bl	8000b54 <Error_Handler>
+ 8000578:	e03c      	b.n	80005f4 <HAL_FDCAN_RxFifo0Callback+0xb0>
 		} else {
 			// No error, process received payload
 			switch (rx_header.Identifier) {
- 8000570:	4b28      	ldr	r3, [pc, #160]	@ (8000614 <HAL_FDCAN_RxFifo0Callback+0xd0>)
- 8000572:	681b      	ldr	r3, [r3, #0]
- 8000574:	f240 4281 	movw	r2, #1153	@ 0x481
- 8000578:	4293      	cmp	r3, r2
- 800057a:	d031      	beq.n	80005e0 <HAL_FDCAN_RxFifo0Callback+0x9c>
- 800057c:	f240 4281 	movw	r2, #1153	@ 0x481
- 8000580:	4293      	cmp	r3, r2
- 8000582:	d836      	bhi.n	80005f2 <HAL_FDCAN_RxFifo0Callback+0xae>
- 8000584:	f240 4241 	movw	r2, #1089	@ 0x441
- 8000588:	4293      	cmp	r3, r2
- 800058a:	d02b      	beq.n	80005e4 <HAL_FDCAN_RxFifo0Callback+0xa0>
- 800058c:	f240 4241 	movw	r2, #1089	@ 0x441
- 8000590:	4293      	cmp	r3, r2
- 8000592:	d82e      	bhi.n	80005f2 <HAL_FDCAN_RxFifo0Callback+0xae>
- 8000594:	f240 3281 	movw	r2, #897	@ 0x381
- 8000598:	4293      	cmp	r3, r2
- 800059a:	d025      	beq.n	80005e8 <HAL_FDCAN_RxFifo0Callback+0xa4>
- 800059c:	f240 3281 	movw	r2, #897	@ 0x381
- 80005a0:	4293      	cmp	r3, r2
- 80005a2:	d826      	bhi.n	80005f2 <HAL_FDCAN_RxFifo0Callback+0xae>
- 80005a4:	f240 3241 	movw	r2, #833	@ 0x341
- 80005a8:	4293      	cmp	r3, r2
- 80005aa:	d013      	beq.n	80005d4 <HAL_FDCAN_RxFifo0Callback+0x90>
- 80005ac:	f240 3241 	movw	r2, #833	@ 0x341
- 80005b0:	4293      	cmp	r3, r2
- 80005b2:	d81e      	bhi.n	80005f2 <HAL_FDCAN_RxFifo0Callback+0xae>
- 80005b4:	f240 3201 	movw	r2, #769	@ 0x301
- 80005b8:	4293      	cmp	r3, r2
- 80005ba:	d017      	beq.n	80005ec <HAL_FDCAN_RxFifo0Callback+0xa8>
- 80005bc:	f240 3201 	movw	r2, #769	@ 0x301
- 80005c0:	4293      	cmp	r3, r2
- 80005c2:	d816      	bhi.n	80005f2 <HAL_FDCAN_RxFifo0Callback+0xae>
- 80005c4:	f240 1281 	movw	r2, #385	@ 0x181
- 80005c8:	4293      	cmp	r3, r2
- 80005ca:	d011      	beq.n	80005f0 <HAL_FDCAN_RxFifo0Callback+0xac>
- 80005cc:	f240 2281 	movw	r2, #641	@ 0x281
- 80005d0:	4293      	cmp	r3, r2
+ 800057a:	4b27      	ldr	r3, [pc, #156]	@ (8000618 <HAL_FDCAN_RxFifo0Callback+0xd4>)
+ 800057c:	681b      	ldr	r3, [r3, #0]
+ 800057e:	f240 4281 	movw	r2, #1153	@ 0x481
+ 8000582:	4293      	cmp	r3, r2
+ 8000584:	d02b      	beq.n	80005de <HAL_FDCAN_RxFifo0Callback+0x9a>
+ 8000586:	f240 4281 	movw	r2, #1153	@ 0x481
+ 800058a:	4293      	cmp	r3, r2
+ 800058c:	d832      	bhi.n	80005f4 <HAL_FDCAN_RxFifo0Callback+0xb0>
+ 800058e:	f240 4241 	movw	r2, #1089	@ 0x441
+ 8000592:	4293      	cmp	r3, r2
+ 8000594:	d025      	beq.n	80005e2 <HAL_FDCAN_RxFifo0Callback+0x9e>
+ 8000596:	f240 4241 	movw	r2, #1089	@ 0x441
+ 800059a:	4293      	cmp	r3, r2
+ 800059c:	d82a      	bhi.n	80005f4 <HAL_FDCAN_RxFifo0Callback+0xb0>
+ 800059e:	f240 3281 	movw	r2, #897	@ 0x381
+ 80005a2:	4293      	cmp	r3, r2
+ 80005a4:	d01f      	beq.n	80005e6 <HAL_FDCAN_RxFifo0Callback+0xa2>
+ 80005a6:	f240 3281 	movw	r2, #897	@ 0x381
+ 80005aa:	4293      	cmp	r3, r2
+ 80005ac:	d822      	bhi.n	80005f4 <HAL_FDCAN_RxFifo0Callback+0xb0>
+ 80005ae:	f240 3241 	movw	r2, #833	@ 0x341
+ 80005b2:	4293      	cmp	r3, r2
+ 80005b4:	d019      	beq.n	80005ea <HAL_FDCAN_RxFifo0Callback+0xa6>
+ 80005b6:	f240 3241 	movw	r2, #833	@ 0x341
+ 80005ba:	4293      	cmp	r3, r2
+ 80005bc:	d81a      	bhi.n	80005f4 <HAL_FDCAN_RxFifo0Callback+0xb0>
+ 80005be:	f240 3201 	movw	r2, #769	@ 0x301
+ 80005c2:	4293      	cmp	r3, r2
+ 80005c4:	d013      	beq.n	80005ee <HAL_FDCAN_RxFifo0Callback+0xaa>
+ 80005c6:	f240 3201 	movw	r2, #769	@ 0x301
+ 80005ca:	4293      	cmp	r3, r2
+ 80005cc:	d812      	bhi.n	80005f4 <HAL_FDCAN_RxFifo0Callback+0xb0>
+ 80005ce:	f240 1281 	movw	r2, #385	@ 0x181
+ 80005d2:	4293      	cmp	r3, r2
+ 80005d4:	d00d      	beq.n	80005f2 <HAL_FDCAN_RxFifo0Callback+0xae>
+ 80005d6:	f240 2281 	movw	r2, #641	@ 0x281
+ 80005da:	4293      	cmp	r3, r2
 				// Inverter
 				case 0x181:
 					break;
 
 				case 0x281:
 					break;
- 80005d2:	e00e      	b.n	80005f2 <HAL_FDCAN_RxFifo0Callback+0xae>
-					//button_data_test.sensor_int = rx_data.sensor_int;
-					//handle_button_press(&race_state, rx_data.bytes[0]); todo: remove the comments
+ 80005dc:	e00a      	b.n	80005f4 <HAL_FDCAN_RxFifo0Callback+0xb0>
+				case 0x381:
 					break;
+				case 0x481:
+					break;
+ 80005de:	bf00      	nop
+ 80005e0:	e008      	b.n	80005f4 <HAL_FDCAN_RxFifo0Callback+0xb0>
 				case 0x341: // bms actions, take them to do smthng with charger, for the debugging we do not need to do
 					// bc we debug directly
-					HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
- 80005d4:	f44f 7180 	mov.w	r1, #256	@ 0x100
- 80005d8:	480f      	ldr	r0, [pc, #60]	@ (8000618 <HAL_FDCAN_RxFifo0Callback+0xd4>)
- 80005da:	f003 fc1d 	bl	8003e18 <HAL_GPIO_TogglePin>
 
 					break;
- 80005de:	e008      	b.n	80005f2 <HAL_FDCAN_RxFifo0Callback+0xae>
-					break;
- 80005e0:	bf00      	nop
- 80005e2:	e006      	b.n	80005f2 <HAL_FDCAN_RxFifo0Callback+0xae>
 				case 0x441:
 					break;
- 80005e4:	bf00      	nop
- 80005e6:	e004      	b.n	80005f2 <HAL_FDCAN_RxFifo0Callback+0xae>
+ 80005e2:	bf00      	nop
+ 80005e4:	e006      	b.n	80005f4 <HAL_FDCAN_RxFifo0Callback+0xb0>
 					break;
- 80005e8:	bf00      	nop
- 80005ea:	e002      	b.n	80005f2 <HAL_FDCAN_RxFifo0Callback+0xae>
+ 80005e6:	bf00      	nop
+ 80005e8:	e004      	b.n	80005f4 <HAL_FDCAN_RxFifo0Callback+0xb0>
 					break;
- 80005ec:	bf00      	nop
- 80005ee:	e000      	b.n	80005f2 <HAL_FDCAN_RxFifo0Callback+0xae>
+ 80005ea:	bf00      	nop
+ 80005ec:	e002      	b.n	80005f4 <HAL_FDCAN_RxFifo0Callback+0xb0>
 					break;
- 80005f0:	bf00      	nop
+ 80005ee:	bf00      	nop
+ 80005f0:	e000      	b.n	80005f4 <HAL_FDCAN_RxFifo0Callback+0xb0>
+					break;
+ 80005f2:	bf00      	nop
 
 			}
 		}
 
 		// Reactive receive notifications
 		if (HAL_FDCAN_ActivateNotification(hfdcan, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0) != HAL_OK)
- 80005f2:	2200      	movs	r2, #0
- 80005f4:	2101      	movs	r1, #1
- 80005f6:	6878      	ldr	r0, [r7, #4]
- 80005f8:	f002 ff9c 	bl	8003534 <HAL_FDCAN_ActivateNotification>
- 80005fc:	4603      	mov	r3, r0
- 80005fe:	2b00      	cmp	r3, #0
- 8000600:	d001      	beq.n	8000606 <HAL_FDCAN_RxFifo0Callback+0xc2>
+ 80005f4:	2200      	movs	r2, #0
+ 80005f6:	2101      	movs	r1, #1
+ 80005f8:	6878      	ldr	r0, [r7, #4]
+ 80005fa:	f002 ff9b 	bl	8003534 <HAL_FDCAN_ActivateNotification>
+ 80005fe:	4603      	mov	r3, r0
+ 8000600:	2b00      	cmp	r3, #0
+ 8000602:	d001      	beq.n	8000608 <HAL_FDCAN_RxFifo0Callback+0xc4>
 		{
 			Error_Handler();
- 8000602:	f000 faa7 	bl	8000b54 <Error_Handler>
+ 8000604:	f000 faa6 	bl	8000b54 <Error_Handler>
 		}
 	}
 }
- 8000606:	bf00      	nop
- 8000608:	3708      	adds	r7, #8
- 800060a:	46bd      	mov	sp, r7
- 800060c:	bd80      	pop	{r7, pc}
- 800060e:	bf00      	nop
- 8000610:	200002f0 	.word	0x200002f0
- 8000614:	200002c4 	.word	0x200002c4
- 8000618:	48000400 	.word	0x48000400
+ 8000608:	bf00      	nop
+ 800060a:	3708      	adds	r7, #8
+ 800060c:	46bd      	mov	sp, r7
+ 800060e:	bd80      	pop	{r7, pc}
+ 8000610:	48000400 	.word	0x48000400
+ 8000614:	200002f0 	.word	0x200002f0
+ 8000618:	200002c4 	.word	0x200002c4
 
 0800061c <race_state_init>:
     HAL_GPIO_WritePin(PORT_CHARGE, PIN_CHARGE, o3);

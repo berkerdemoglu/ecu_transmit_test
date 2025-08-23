@@ -89,6 +89,8 @@ static void MX_FDCAN1_Init(void);
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs) {
 	if ((RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE) != RESET)
 	{
+		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
+
 
 		// Retrieve Rx messages from RX FIFO0
 		if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &rx_header, rx_data.bytes) != HAL_OK)
@@ -116,7 +118,6 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 					break;
 				case 0x341: // bms actions, take them to do smthng with charger, for the debugging we do not need to do
 					// bc we debug directly
-					HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
 
 					break;
 				case 0x441:
